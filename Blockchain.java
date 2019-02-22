@@ -1,4 +1,20 @@
 
+////////////////////////////////////////////////////////////////////////////////////
+
+// @TODO 
+
+/*
+    * Add custom comparator for PriorityQueue, for ordering Block objects by timestamp
+        * Un-marshal Blocks then use timestamp for ordering
+    * Separate the Block struct from the BlockRecord struct - Block struct has inner BlockRecord struct(s)
+        * Allows you to then create a hash from the BlockRecord struct and put that into Block header
+            * Unsigned hash, signed hash
+*/
+
+////////////////////////////////////////////////////////////////////////////////////
+
+
+
 /* XML facilities */
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
