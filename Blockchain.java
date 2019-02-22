@@ -29,68 +29,6 @@ import java.util.concurrent.*;
 import java.text.*;
 
 
-class BlockEncryption{
-
-    public BlockEncryption(){
-
-    }
-
-    public static byte[] signData(byte[] data, PrivateKey key) throws Exception {
-
-        // Create object used to apply a digital signature, using the algorithm specified: SHA1 with RSA
-        Signature signer = Signature.getInstance("SHA1withRSA");
-
-        // Initializes signing object (signer) with our private key; it says which key to use when signing data
-
-        // Sign the 
-        signer.initSign(key);
-
-        // Feeds in the data to the signer object
-        // At this point, we basically just passed over a copy of the data and the key to the signer object
-        // We haven't yet applied the signature to the data, within the signer object
-        signer.update(data);
-
-        // Applies the signature to the data and returns the result
-        return (signer.sign());
-  }
-
-  public static boolean verifySig(byte[] data, PublicKey key, byte[] sig) throws Exception {
-
-        // Creates a signature object, which will verify the signature using the algorithm specified
-        Signature signer = Signature.getInstance("SHA1withRSA");
-
-        // Just passes the public key to the signature object; signer will use key to decrypt any signed messages
-        signer.initVerify(key);
-
-        // Passes the signed data to the signer object, but does not yet apply the public key
-        signer.update(data);
-
-        // Returns true if the signature is verified
-        // The way it does this is :
-            // Signer creates its own hash of the raw data bytes
-            // Signer decrypts sig with the public key
-            // The signature is also just the hash of the raw data, but with the private key applied
-                // If the decrypted hash matches the hash performed by signer, then the signature is verified
-        return (signer.verify(sig));
-  }
-
-  public static KeyPair generateKeyPair(long seed) throws Exception {
-
-        KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
-        SecureRandom rng = SecureRandom.getInstance("SHA1PRNG", "SUN");
-        rng.setSeed(seed);
-        keyGenerator.initialize(1024, rng);
-
-        return (keyGenerator.generateKeyPair());
-  }
-
-  public static String createHash(){
-
-    return "";
-  }
-
-}
-
 // **********************************************************************************
 // BlockRecord "struct", containing all the XML fields and methods
 // **********************************************************************************
@@ -163,6 +101,71 @@ class BlockRecord {
 }
 
 // **********************************************************************************
+// Used to generate public/private keys, create hashes, etc.
+// **********************************************************************************
+class BlockEncryption{
+
+    public BlockEncryption(){
+
+    }
+
+    public static byte[] signData(byte[] data, PrivateKey key) throws Exception {
+
+        // Create object used to apply a digital signature, using the algorithm specified: SHA1 with RSA
+        Signature signer = Signature.getInstance("SHA1withRSA");
+
+        // Initializes signing object (signer) with our private key; it says which key to use when signing data
+
+        // Sign the 
+        signer.initSign(key);
+
+        // Feeds in the data to the signer object
+        // At this point, we basically just passed over a copy of the data and the key to the signer object
+        // We haven't yet applied the signature to the data, within the signer object
+        signer.update(data);
+
+        // Applies the signature to the data and returns the result
+        return (signer.sign());
+  }
+
+  public static boolean verifySig(byte[] data, PublicKey key, byte[] sig) throws Exception {
+
+        // Creates a signature object, which will verify the signature using the algorithm specified
+        Signature signer = Signature.getInstance("SHA1withRSA");
+
+        // Just passes the public key to the signature object; signer will use key to decrypt any signed messages
+        signer.initVerify(key);
+
+        // Passes the signed data to the signer object, but does not yet apply the public key
+        signer.update(data);
+
+        // Returns true if the signature is verified
+        // The way it does this is :
+            // Signer creates its own hash of the raw data bytes
+            // Signer decrypts sig with the public key
+            // The signature is also just the hash of the raw data, but with the private key applied
+                // If the decrypted hash matches the hash performed by signer, then the signature is verified
+        return (signer.verify(sig));
+  }
+
+  public static KeyPair generateKeyPair(long seed) throws Exception {
+
+        KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
+        SecureRandom rng = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        rng.setSeed(seed);
+        keyGenerator.initialize(1024, rng);
+
+        return (keyGenerator.generateKeyPair());
+  }
+
+  public static String createHash(){
+
+    return "";
+  }
+
+}
+
+// **********************************************************************************
 // Used for port lookups
 // **********************************************************************************
 class Ports{
@@ -181,7 +184,8 @@ class Ports{
     }
   }
 
-// **********************************************************************************
+
+  // **********************************************************************************
 // Produces new unverified blocks from file and multicasts them out
 // **********************************************************************************
 
