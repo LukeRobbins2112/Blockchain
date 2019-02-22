@@ -2,6 +2,12 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - UnverifiedBlockCreator",
+            "request": "launch",
+            "mainClass": "UnverifiedBlockCreator"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - BlockCreator",
             "request": "launch",
             "mainClass": "BlockCreator"
