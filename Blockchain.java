@@ -1,10 +1,95 @@
 
+/* XML facilities */
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+/* Security and cryptography */
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.Signature;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import javax.crypto.Cipher;
+
+/* General facilities */
 import java.util.*;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 import java.text.*;
+
+
+class BlockEncryption{
+
+    public BlockEncryption(){
+
+    }
+
+    public static byte[] signData(byte[] data, PrivateKey key) throws Exception {
+
+        // Create object used to apply a digital signature, using the algorithm specified: SHA1 with RSA
+        Signature signer = Signature.getInstance("SHA1withRSA");
+
+        // Initializes signing object (signer) with our private key; it says which key to use when signing data
+
+        // Sign the 
+        signer.initSign(key);
+
+        // Feeds in the data to the signer object
+        // At this point, we basically just passed over a copy of the data and the key to the signer object
+        // We haven't yet applied the signature to the data, within the signer object
+        signer.update(data);
+
+        // Applies the signature to the data and returns the result
+        return (signer.sign());
+  }
+
+  public static boolean verifySig(byte[] data, PublicKey key, byte[] sig) throws Exception {
+
+        // Creates a signature object, which will verify the signature using the algorithm specified
+        Signature signer = Signature.getInstance("SHA1withRSA");
+
+        // Just passes the public key to the signature object; signer will use key to decrypt any signed messages
+        signer.initVerify(key);
+
+        // Passes the signed data to the signer object, but does not yet apply the public key
+        signer.update(data);
+
+        // Returns true if the signature is verified
+        // The way it does this is :
+            // Signer creates its own hash of the raw data bytes
+            // Signer decrypts sig with the public key
+            // The signature is also just the hash of the raw data, but with the private key applied
+                // If the decrypted hash matches the hash performed by signer, then the signature is verified
+        return (signer.verify(sig));
+  }
+
+  public static KeyPair generateKeyPair(long seed) throws Exception {
+
+        KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
+        SecureRandom rng = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        rng.setSeed(seed);
+        keyGenerator.initialize(1024, rng);
+
+        return (keyGenerator.generateKeyPair());
+  }
+
+  public static String createHash(){
+
+    return "";
+  }
+
+}
 
 // **********************************************************************************
 // BlockRecord "struct", containing all the XML fields and methods
@@ -111,7 +196,46 @@ class NewBlockCreator{
     public void createBlocks(){
 
         try{
-            BufferedReader br = new BufferedReader(new FileReader(FILENAME));
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            String input;
+
+            // @TODO for now using a fixed number of block records
+            BlockRecord[] blockArray = new BlockRecord[20];
+
+            for (int i = 0; i < 20 && (input = br.readLine()) != null; i++){
+
+                // Create a new, empty BlockRecord
+                blockArray[i] = new BlockRecord();
+
+                // Insert the un-signed hash (@TODO call a hash on the raw data for this)
+                blockArray[i].setASHA256String("SHA string goes here...");
+
+                // Insert the signed hash, using the private key and entry data 
+                // (@TODO get the hash above, and sign it using the java.security.Signature class as shown in BlockH.java)
+                blockArray[i].setASignedSHA256("Signed SHA string goes here...");
+
+                /* CDE: Generate a unique blockID. This would also be signed by creating process: */
+                idA = UUID.randomUUID();
+                suuid = new String(UUID.randomUUID().toString());
+                blockArray[n].setABlockID(suuid);
+                blockArray[n].setACreatingProcess("Process" + Integer.toString(pnum));
+
+                // @TODO sign the blockID and include here
+                blockArray[n].setAVerificationProcessID("To be set later...");
+                
+                /* CDE put the file data into the block record: */
+                // Tokenize the input, just pack each field into the appropriate header
+                tokens = InputLineStr.split(" +"); 
+                blockArray[n].setFSSNum(tokens[iSSNUM]);
+                blockArray[n].setFFname(tokens[iFNAME]);
+                blockArray[n].setFLname(tokens[iLNAME]);
+                blockArray[n].setFDOB(tokens[iDOB]);
+                blockArray[n].setGDiag(tokens[iDIAG]);
+                blockArray[n].setGTreat(tokens[iTREAT]);
+                blockArray[n].setGRx(tokens[iRX]);
+
+            }
+
         } catch(IOException e){
             e.printStackTrace();
         }
