@@ -188,8 +188,19 @@ class Ports{
 class NewBlockCreator{
 
     private static String fileName;
+    int pnum;
+
+    /* Token indexes for input: */
+    private static final int iFNAME = 0;
+    private static final int iLNAME = 1;
+    private static final int iDOB = 2;
+    private static final int iSSNUM = 3;
+    private static final int iDIAG = 4;
+    private static final int iTREAT = 5;
+    private static final int iRX = 6;
 
     public NewBlockCreator(){
+        this.pnum = Blockchain.PID;
         fileName = "BlockInput" + Integer.toString(Blockchain.PID) + ".txt";
     }
 
@@ -215,24 +226,24 @@ class NewBlockCreator{
                 blockArray[i].setASignedSHA256("Signed SHA string goes here...");
 
                 /* CDE: Generate a unique blockID. This would also be signed by creating process: */
-                idA = UUID.randomUUID();
-                suuid = new String(UUID.randomUUID().toString());
-                blockArray[n].setABlockID(suuid);
-                blockArray[n].setACreatingProcess("Process" + Integer.toString(pnum));
+                // idA = UUID.randomUUID();
+                String suuid = new String(UUID.randomUUID().toString());
+                blockArray[i].setABlockID(suuid);
+                blockArray[i].setACreatingProcess("Process" + Integer.toString(pnum));
 
                 // @TODO sign the blockID and include here
-                blockArray[n].setAVerificationProcessID("To be set later...");
+                blockArray[i].setAVerificationProcessID("To be set later...");
                 
                 /* CDE put the file data into the block record: */
                 // Tokenize the input, just pack each field into the appropriate header
-                tokens = InputLineStr.split(" +"); 
-                blockArray[n].setFSSNum(tokens[iSSNUM]);
-                blockArray[n].setFFname(tokens[iFNAME]);
-                blockArray[n].setFLname(tokens[iLNAME]);
-                blockArray[n].setFDOB(tokens[iDOB]);
-                blockArray[n].setGDiag(tokens[iDIAG]);
-                blockArray[n].setGTreat(tokens[iTREAT]);
-                blockArray[n].setGRx(tokens[iRX]);
+                String [] tokens = input.split(" +"); 
+                blockArray[i].setFSSNum(tokens[iSSNUM]);
+                blockArray[i].setFFname(tokens[iFNAME]);
+                blockArray[i].setFLname(tokens[iLNAME]);
+                blockArray[i].setFDOB(tokens[iDOB]);
+                blockArray[i].setGDiag(tokens[iDIAG]);
+                blockArray[i].setGTreat(tokens[iTREAT]);
+                blockArray[i].setGRx(tokens[iRX]);
 
             }
 
@@ -261,7 +272,7 @@ class UnverifiedBlockProcessor implements Runnable{
     // **************************
     // Inner class
     // **************************
-    class BlockProcessor implements Runnable{
+    class BlockProcessor extends Thread{
 
         Socket sock;
 
