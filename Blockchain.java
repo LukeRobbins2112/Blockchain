@@ -32,6 +32,16 @@ class Ports{
 
 class UnverifiedBlockCreator implements Runnable{
 
+    // Threadsafe queue used by UnverifiedBlockCreator and BlockVerifier
+    BlockingQueue<String> queue;
+
+    public UnverifiedBlockCreator(BlockingQueue<String> _queue){
+        this.queue = queue;
+    }
+
+    // **************************
+    // Inner class
+    // **************************
     class BlockCreator implements Runnable{
 
         Socket sock;
@@ -41,6 +51,26 @@ class UnverifiedBlockCreator implements Runnable{
         } 
 
         public void run(){
+
+            try{
+                BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+
+                // Read the full block entry as a marshalled string
+                StringBuilder blockString = new StringBuilder();
+                String data;
+                while((data = in.readLine()) != null){
+                    blockString.append(data);
+                }
+
+                // Insert the new un-verified block into the priority queue
+                // @TODO this just puts the string in there, but should we have a key/value where the timestamp is the key used for order?
+                queue.put(blockString.toString());
+                
+                sock.close(); 
+            } catch (Exception x)
+            {
+              x.printStackTrace();
+            }
 
         }
         
@@ -80,6 +110,12 @@ public class Blockchain{
 
         // Assign Process ID
         PID = (args.length < 1) ? 0 : Integer.parseInt(args[0]);
+
+        // Create thread-safe priority queue for processing unverified blocks
+        final BlockingQueue<String> queue = new PriorityBlockingQueue<>(); 
+
+        // Perform port number setup for various Processes
+        new Ports().setPorts(); 
     }
 
 }
