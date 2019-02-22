@@ -1,10 +1,81 @@
 
 
-
 import java.util.*;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.text.*;
+
+// **********************************************************************************
+// BlockRecord "struct", containing all the XML fields and methods
+// **********************************************************************************
+
+@XmlRootElement
+class BlockRecord {
+  /* Examples of block fields: */
+  String SHA256String;
+  String SignedSHA256;
+  String BlockID;
+  String VerificationProcessID;
+  String CreatingProcess;
+  String PreviousHash;
+  String Fname;
+  String Lname;
+  String SSNum;
+  String DOB;
+  String Diag;
+  String Treat;
+  String Rx;
+
+  public String getASHA256String() {return SHA256String;}
+  @XmlElement
+    public void setASHA256String(String SH){this.SHA256String = SH;}
+
+  public String getASignedSHA256() {return SignedSHA256;}
+  @XmlElement
+    public void setASignedSHA256(String SH){this.SignedSHA256 = SH;}
+
+  public String getACreatingProcess() {return CreatingProcess;}
+  @XmlElement
+    public void setACreatingProcess(String CP){this.CreatingProcess = CP;}
+
+  public String getAVerificationProcessID() {return VerificationProcessID;}
+  @XmlElement
+    public void setAVerificationProcessID(String VID){this.VerificationProcessID = VID;}
+
+  public String getABlockID() {return BlockID;}
+  @XmlElement
+    public void setABlockID(String BID){this.BlockID = BID;}
+
+  public String getFSSNum() {return SSNum;}
+  @XmlElement
+    public void setFSSNum(String SS){this.SSNum = SS;}
+
+  public String getFFname() {return Fname;}
+  @XmlElement
+    public void setFFname(String FN){this.Fname = FN;}
+
+  public String getFLname() {return Lname;}
+  @XmlElement
+    public void setFLname(String LN){this.Lname = LN;}
+
+  public String getFDOB() {return DOB;}
+  @XmlElement
+    public void setFDOB(String DOB){this.DOB = DOB;}
+
+  public String getGDiag() {return Diag;}
+  @XmlElement
+    public void setGDiag(String D){this.Diag = D;}
+
+  public String getGTreat() {return Treat;}
+  @XmlElement
+    public void setGTreat(String D){this.Treat = D;}
+
+  public String getGRx() {return Rx;}
+  @XmlElement
+    public void setGRx(String D){this.Rx = D;}
+
+}
 
 // **********************************************************************************
 // Used for port lookups
@@ -25,28 +96,52 @@ class Ports{
     }
   }
 
+// **********************************************************************************
+// Produces new unverified blocks from file and multicasts them out
+// **********************************************************************************
+
+class NewBlockCreator{
+
+    private static String fileName;
+
+    public NewBlockCreator(){
+        fileName = "BlockInput" + Integer.toString(Blockchain.PID) + ".txt";
+    }
+
+    public void createBlocks(){
+
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(FILENAME));
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+        
+
+    }
+
+}
 
 // **********************************************************************************
-// Reads entries from file, creates new Block entries, and publishes
+// Receives unverified blocks and places them on priority queue to be processed
 // **********************************************************************************
 
-class UnverifiedBlockCreator implements Runnable{
+class UnverifiedBlockProcessor implements Runnable{
 
-    // Threadsafe queue used by UnverifiedBlockCreator and BlockVerifier
+    // Threadsafe queue used by UnverifiedBlockProcessor and BlockVerifier
     BlockingQueue<String> queue;
 
-    public UnverifiedBlockCreator(BlockingQueue<String> _queue){
+    public UnverifiedBlockProcessor(BlockingQueue<String> _queue){
         this.queue = queue;
     }
 
     // **************************
     // Inner class
     // **************************
-    class BlockCreator implements Runnable{
+    class BlockProcessor implements Runnable{
 
         Socket sock;
 
-        UnverifiedBlockWorker (Socket s) {
+        BlockProcessor (Socket s) {
             sock = s;
         } 
 
@@ -56,6 +151,7 @@ class UnverifiedBlockCreator implements Runnable{
                 BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
                 // Read the full block entry as a marshalled string
+                // @TODO might just be sent as a single string, might not have to "build" it like this
                 StringBuilder blockString = new StringBuilder();
                 String data;
                 while((data = in.readLine()) != null){
@@ -65,7 +161,7 @@ class UnverifiedBlockCreator implements Runnable{
                 // Insert the new un-verified block into the priority queue
                 // @TODO this just puts the string in there, but should we have a key/value where the timestamp is the key used for order?
                 queue.put(blockString.toString());
-                
+
                 sock.close(); 
             } catch (Exception x)
             {
@@ -76,7 +172,7 @@ class UnverifiedBlockCreator implements Runnable{
         
     }
 
-    public static void main(String[] args){
+    public void run(){
             
         int q_len = 6; 
         Socket sock;
@@ -86,7 +182,7 @@ class UnverifiedBlockCreator implements Runnable{
       
             while (true) {
                 sock = servsock.accept(); // Got a new unverified block
-                new BlockCreator(sock).start(); // So start a thread to process it.
+                new BlockProcessor(sock).start(); // So start a thread to process it.
             }
         } catch (IOException ioe) 
         {
