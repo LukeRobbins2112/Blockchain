@@ -6,10 +6,19 @@
 /*
     * Add custom comparator for PriorityQueue, for ordering Block objects by timestamp
         * Un-marshal Blocks then use timestamp for ordering
+    * Test new marshalling with BlockRecord as inner variable of Block
+    * Add Timestamp field to Block
+    * Implement hash and signed hash for unverified blocks
+*/
+
+// @DONE
+
+/*
     * Separate the Block struct from the BlockRecord struct - Block struct has inner BlockRecord struct(s)
         * Allows you to then create a hash from the BlockRecord struct and put that into Block header
             * Unsigned hash, signed hash
 */
+
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,68 +59,94 @@ import java.text.*;
 // **********************************************************************************
 
 @XmlRootElement
-class BlockRecord {
-  /* Examples of block fields: */
-  String SHA256String;
-  String SignedSHA256;
-  String BlockID;
-  String VerificationProcessID;
-  String CreatingProcess;
-  String PreviousHash;
-  String Fname;
-  String Lname;
-  String SSNum;
-  String DOB;
-  String Diag;
-  String Treat;
-  String Rx;
+class Block{
 
-  public String getASHA256String() {return SHA256String;}
-  @XmlElement
+    // Block Information
+    String SHA256String;
+    String SignedSHA256;
+    String BlockID;
+    String VerificationProcessID;
+    String CreatingProcess;
+    String PreviousHash;
+
+    // BlockRecord Data
+    BlockRecord blockRecord;
+
+
+    // Setters and getters for Block header
+
+    public String getASHA256String() {return SHA256String;}
+    @XmlElement
     public void setASHA256String(String SH){this.SHA256String = SH;}
 
-  public String getASignedSHA256() {return SignedSHA256;}
-  @XmlElement
+    public String getASignedSHA256() {return SignedSHA256;}
+    @XmlElement
     public void setASignedSHA256(String SH){this.SignedSHA256 = SH;}
 
-  public String getACreatingProcess() {return CreatingProcess;}
-  @XmlElement
-    public void setACreatingProcess(String CP){this.CreatingProcess = CP;}
-
-  public String getAVerificationProcessID() {return VerificationProcessID;}
-  @XmlElement
-    public void setAVerificationProcessID(String VID){this.VerificationProcessID = VID;}
-
-  public String getABlockID() {return BlockID;}
-  @XmlElement
+    public String getABlockID() {return BlockID;}
+    @XmlElement
     public void setABlockID(String BID){this.BlockID = BID;}
 
-  public String getFSSNum() {return SSNum;}
-  @XmlElement
-    public void setFSSNum(String SS){this.SSNum = SS;}
+    public String getAVerificationProcessID() {return VerificationProcessID;}
+    @XmlElement
+    public void setAVerificationProcessID(String VID){this.VerificationProcessID = VID;}
 
-  public String getFFname() {return Fname;}
-  @XmlElement
+    public String getACreatingProcess() {return CreatingProcess;}
+    @XmlElement
+    public void setACreatingProcess(String CP){this.CreatingProcess = CP;}
+
+    public String getAPreviousHash() {return PreviousHash;}
+    @XmlElement
+    public void setAPreviousHash(String PH){this.PreviousHash = PH;}
+
+    // Setter/Getter for BlockRecord
+
+    public BlockRecord getBlockRecord() {return blockRecord;}
+    @XmlElement
+    public void setBlockRecord(BlockRecord BR){
+        
+        this.blockRecord.Fname = BR.getFFname();
+        this.blockRecord.Lname = BR.getFLname();
+        this.blockRecord.SSNum = BR.getFSSNum();
+        this.blockRecord.DOB = BR.getFDOB();
+        this.blockRecord.Diag = BR.getGDiag();
+        this.blockRecord.Treat = BR.getGTreat();
+        this.blockRecord.Rx = BR.getGRx();
+    }
+
+
+}
+
+// POJO for packing into Block struct
+class BlockRecord {
+ 
+    String Fname;
+    String Lname;
+    String SSNum;
+    String DOB;
+    String Diag;
+    String Treat;
+    String Rx;
+
+    public String getFFname() {return Fname;}
     public void setFFname(String FN){this.Fname = FN;}
 
-  public String getFLname() {return Lname;}
-  @XmlElement
+    public String getFLname() {return Lname;}
     public void setFLname(String LN){this.Lname = LN;}
 
-  public String getFDOB() {return DOB;}
-  @XmlElement
+    public String getFSSNum() {return SSNum;}
+    public void setFSSNum(String SS){this.SSNum = SS;}
+  
+    public String getFDOB() {return DOB;}
     public void setFDOB(String DOB){this.DOB = DOB;}
 
-  public String getGDiag() {return Diag;}
-  @XmlElement
+    public String getGDiag() {return Diag;}
     public void setGDiag(String D){this.Diag = D;}
 
-  public String getGTreat() {return Treat;}
-  @XmlElement
+    public String getGTreat() {return Treat;}
     public void setGTreat(String D){this.Treat = D;}
 
-  public String getGRx() {return Rx;}
-  @XmlElement
+    public String getGRx() {return Rx;}
     public void setGRx(String D){this.Rx = D;}
 
 }
