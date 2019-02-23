@@ -125,6 +125,7 @@ class Block{
 // POJO for packing into Block struct
 class BlockRecord {
  
+    // Data fields
     String Fname;
     String Lname;
     String SSNum;
@@ -132,6 +133,10 @@ class BlockRecord {
     String Diag;
     String Treat;
     String Rx;
+
+    // Validation fields
+    String blockNumber = "-1";
+    String seedString = "";
 
     public String getFFname() {return Fname;}
     public void setFFname(String FN){this.Fname = FN;}
