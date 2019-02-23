@@ -72,6 +72,11 @@ class Block{
     // BlockRecord Data
     BlockRecord blockRecord;
 
+    // Constructor
+    public Block(){
+        this.blockRecord = new BlockRecord();
+    }
+
 
     // Setters and getters for Block header
 
@@ -266,12 +271,30 @@ class NewBlockCreator{
             String input;
 
             // @TODO for now using a fixed number of block records
-            BlockRecord[] blockArray = new BlockRecord[20];
+            Block[] blockArray = new Block[20];
+            BlockRecord blockRecord;
 
             for (int i = 0; i < 20 && (input = br.readLine()) != null; i++){
 
-                // Create a new, empty BlockRecord
-                blockArray[i] = new BlockRecord();
+                // Create a new, empty Block array
+                blockArray[i] = new Block();
+                
+                // Build the BlockRecord for the current block
+                String [] tokens = input.split(" +"); 
+                blockRecord = new BlockRecord();
+
+                blockRecord.setFSSNum(tokens[iSSNUM]);
+                blockRecord.setFFname(tokens[iFNAME]);
+                blockRecord.setFLname(tokens[iLNAME]);
+                blockRecord.setFDOB(tokens[iDOB]);
+                blockRecord.setGDiag(tokens[iDIAG]);
+                blockRecord.setGTreat(tokens[iTREAT]);
+                blockRecord.setGRx(tokens[iRX]);
+
+                // Add full BlockRecord to current Block
+                blockArray[i].setBlockRecord(blockRecord);
+
+                // Fill the Block header //
 
                 // Insert the un-signed hash (@TODO call a hash on the raw data for this)
                 blockArray[i].setASHA256String("SHA string goes here...");
@@ -284,21 +307,12 @@ class NewBlockCreator{
                 // idA = UUID.randomUUID();
                 String suuid = new String(UUID.randomUUID().toString());
                 blockArray[i].setABlockID(suuid);
-                blockArray[i].setACreatingProcess("Process" + Integer.toString(pnum));
+                blockArray[i].setACreatingProcess("Process:" + Integer.toString(pnum));
 
                 // @TODO sign the blockID and include here
-                blockArray[i].setAVerificationProcessID("To be set later...");
+                // To be set later, once the block is verified
+                blockArray[i].setAVerificationProcessID("-1");
                 
-                /* CDE put the file data into the block record: */
-                // Tokenize the input, just pack each field into the appropriate header
-                String [] tokens = input.split(" +"); 
-                blockArray[i].setFSSNum(tokens[iSSNUM]);
-                blockArray[i].setFFname(tokens[iFNAME]);
-                blockArray[i].setFLname(tokens[iLNAME]);
-                blockArray[i].setFDOB(tokens[iDOB]);
-                blockArray[i].setGDiag(tokens[iDIAG]);
-                blockArray[i].setGTreat(tokens[iTREAT]);
-                blockArray[i].setGRx(tokens[iRX]);
 
             }
 
