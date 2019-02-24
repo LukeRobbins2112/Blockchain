@@ -261,6 +261,30 @@ class BlockMarshaller{
         return null;
   }
 
+  public static String marshallBlock(Block block){
+
+    String stringXML = null;
+
+    try{
+        /* The XML conversion tools: */
+        JAXBContext jaxbContext = JAXBContext.newInstance(Block.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        StringWriter sw = new StringWriter();
+
+        // CDE Make the output pretty printed:
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
+        jaxbMarshaller.marshal(block, sw);
+        stringXML = sw.toString();
+        System.out.println(stringXML);
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+
+    return stringXML;
+  }
+
   public static String marshalBlockRecord(Block block){
 
     String stringXML = null;
@@ -351,18 +375,18 @@ class BlockMarshaller{
 // Used for port lookups
 // **********************************************************************************
 class Ports{
-    public static int KeyServerPortBase = 6050;
-    public static int UnverifiedBlockServerPortBase = 6051;
-    public static int BlockchainServerPortBase = 6052;
+    public static int KeyServerPortBase = 4710;
+    public static int UnverifiedBlockServerPortBase = 4820;
+    public static int BlockchainServerPortBase = 4930;
   
     public static int KeyServerPort;
     public static int UnverifiedBlockServerPort;
     public static int BlockchainServerPort;
   
     public void setPorts(){
-      KeyServerPort = KeyServerPortBase + (Blockchain.PID * 1000);
-      UnverifiedBlockServerPort = UnverifiedBlockServerPortBase + (Blockchain.PID * 1000);
-      BlockchainServerPort = BlockchainServerPortBase + (Blockchain.PID * 1000);
+      KeyServerPort = KeyServerPortBase + (Blockchain.PID);
+      UnverifiedBlockServerPort = UnverifiedBlockServerPortBase + (Blockchain.PID);
+      BlockchainServerPort = BlockchainServerPortBase + (Blockchain.PID);
     }
 }
 
@@ -411,8 +435,22 @@ class NewBlockCreator implements Runnable{
 
     }
 
-    public Block createBlock(BlockRecord blockRecord){
+    public void hashAndSignBlockRecord(Block block){
 
+        String marshalledBlockRecord = BlockMarshaller.marshalBlockRecord(block);
+        String blockRecordHash = BlockMarshaller.hashData(marshalledBlockRecord);
+        String signedBlockRecordHash = BlockMarshaller.signDataString(blockRecordHash);
+
+        // Insert the un-signed hash (@TODO call a hash on the raw data for this)
+        block.setASHA256String(blockRecordHash);
+            
+        // Insert the signed hash, using the private key and entry data 
+        // (@TODO get the hash above, and sign it using the java.security.Signature class as shown in BlockH.java)
+        block.setASignedSHA256(signedBlockRecordHash);
+
+    }
+
+    public Block createBlock(BlockRecord blockRecord){
 
         // Create a new, empty Block array
         Block newBlock = new Block();
@@ -421,12 +459,6 @@ class NewBlockCreator implements Runnable{
         newBlock.setBlockRecord(blockRecord);
 
         // Fill the Block header //
-        // Insert the un-signed hash (@TODO call a hash on the raw data for this)
-        newBlock.setASHA256String("SHA string goes here...");
-            
-        // Insert the signed hash, using the private key and entry data 
-        // (@TODO get the hash above, and sign it using the java.security.Signature class as shown in BlockH.java)
-        newBlock.setASignedSHA256("Signed SHA string goes here...");
 
         /* CDE: Generate a unique blockID. This would also be signed by creating process: */
         // idA = UUID.randomUUID();
@@ -437,6 +469,9 @@ class NewBlockCreator implements Runnable{
         // @TODO sign the blockID and include here
         // To be set later, once the block is verified
         newBlock.setAVerificationProcessID("-1");
+
+        // Create SHA256 hash, and signed version; insert those into Block header
+        hashAndSignBlockRecord(newBlock);
             
         // Finally, add a timestamp at the new Block's creation
         String T1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
@@ -446,6 +481,33 @@ class NewBlockCreator implements Runnable{
         newBlock.setTimestamp(TimeStampString);
 
         return newBlock;
+    }
+
+    public void marshalAndMulticast(Block block){
+
+        // Get String of marshalled unverified Block to multicast
+        String marshalledBlock = BlockMarshaller.marshallBlock(block);
+
+        // Multicast Block
+
+        Socket sock;
+        PrintStream toServer;
+
+        try{
+
+            // Send a sample unverified block to each server
+            for(int i=0; i < Blockchain.numProcesses; i++){
+                sock = new Socket(Blockchain.serverName, Ports.UnverifiedBlockServerPortBase + i);
+                toServer = new PrintStream(sock.getOutputStream());
+                toServer.println(marshalledBlock);
+                toServer.flush();
+                sock.close();
+            }
+
+        }catch (Exception x) {
+            x.printStackTrace ();
+        }
+
     }
 
     public ArrayList<Block> createBlocks(){
@@ -466,6 +528,9 @@ class NewBlockCreator implements Runnable{
 
                 // Add new Block to the list
                 blockArrayList.add(newBlock);
+
+                // Multicast new unverified block
+                marshalAndMulticast(newBlock);
                 
                 // Add tiny delay to prevent duplicate Timestamps
                 try{Thread.sleep(10);}catch(Exception e){e.printStackTrace();}
