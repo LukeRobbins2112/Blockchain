@@ -138,6 +138,10 @@ class BlockRecord {
     String blockNumber = "-1";
     String seedString = "";
 
+    public BlockRecord(){
+
+    }
+
     public String getFFname() {return Fname;}
     public void setFFname(String FN){this.Fname = FN;}
 
@@ -243,10 +247,10 @@ class Ports{
       UnverifiedBlockServerPort = UnverifiedBlockServerPortBase + (Blockchain.PID * 1000);
       BlockchainServerPort = BlockchainServerPortBase + (Blockchain.PID * 1000);
     }
-  }
+}
 
 
-  // **********************************************************************************
+// **********************************************************************************
 // Produces new unverified blocks from file and multicasts them out
 // **********************************************************************************
 
@@ -283,12 +287,13 @@ class NewBlockCreator{
 
                 // Create a new, empty Block array
                 blockArray[i] = new Block();
+                blockRecord = new BlockRecord();
                 
                 // Build the BlockRecord for the current block
-                String [] tokens = input.split(" +"); 
-                blockRecord = new BlockRecord();
-
-                blockRecord.setFSSNum(tokens[iSSNUM]);
+                String [] tokens = input.split(" "); 
+                
+                String ss = tokens[iSSNUM];
+                blockRecord.setFSSNum(ss);
                 blockRecord.setFFname(tokens[iFNAME]);
                 blockRecord.setFLname(tokens[iLNAME]);
                 blockRecord.setFDOB(tokens[iDOB]);
@@ -318,8 +323,10 @@ class NewBlockCreator{
                 // To be set later, once the block is verified
                 blockArray[i].setAVerificationProcessID("-1");
                 
-
+               
             }
+
+            br.close();
 
         } catch(IOException e){
             e.printStackTrace();
@@ -418,6 +425,10 @@ public class Blockchain{
 
         // Create thread-safe priority queue for processing unverified blocks
         final BlockingQueue<String> queue = new PriorityBlockingQueue<>(); 
+
+        // Create new blocks from file
+        NewBlockCreator nbc = new NewBlockCreator();
+        nbc.createBlocks();
 
         // Perform port number setup for various Processes
         new Ports().setPorts(); 
