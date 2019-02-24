@@ -46,6 +46,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import javax.crypto.Cipher;
 
+import java.security.MessageDigest; // To produce the SHA-256 hash.
+
+
 /* General facilities */
 import java.util.*;
 import java.io.*;
@@ -237,14 +240,21 @@ class BlockMarshaller{
         return (signer.verify(sig));
   }
 
-  public static KeyPair generateKeyPair(long seed) throws Exception {
+  public static KeyPair generateKeyPair(long seed){
 
-        KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
-        SecureRandom rng = SecureRandom.getInstance("SHA1PRNG", "SUN");
-        rng.setSeed(seed);
-        keyGenerator.initialize(1024, rng);
+        try{
+            KeyPairGenerator keyGenerator = KeyPairGenerator.getInstance("RSA");
+            SecureRandom rng = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            rng.setSeed(seed);
+            keyGenerator.initialize(1024, rng);
 
-        return (keyGenerator.generateKeyPair());
+            return (keyGenerator.generateKeyPair());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
   }
 
   public static String marshalBlockRecord(Block block){
@@ -270,6 +280,65 @@ class BlockMarshaller{
     
 
     return stringXML;
+  }
+
+  public static String hashData(String data){
+
+    try{
+        /* Create the SHA-256 hash of the block: */
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update (data.getBytes());
+        byte byteData[] = md.digest();
+
+        // Create hex representation of byte data
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < byteData.length; i++) {
+        sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        String SHA256String = sb.toString();
+        return SHA256String;
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+      
+    return null;
+  }
+
+  public static String signData(String unsignedData){
+
+    try{
+        // Sign the hash of the BlockRecord data using the private key generated
+        byte[] digitalSignature = signData(unsignedData.getBytes(), Blockchain.keyPair.getPrivate());
+        
+        // Verify the signature, using the public key generated
+        boolean verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), digitalSignature);
+        System.out.println("Has the signature been verified: " + verified + "\n");
+        
+        System.out.println("Original SHA256 Hash: " + unsignedData + "\n");
+
+        /* Add the SHA256String to the header for the block. We turn the byte[] signature into a string so that it can be placed into
+        the block, but also show how to return the string to a byte[], which you'll need if you want to use it later.*/
+
+        // Get the String representation of the digital signature created from the private key + BlockRecord hash
+        String signedData = Base64.getEncoder().encodeToString(digitalSignature);
+        System.out.println("The signed SHA-256 string: " + signedData + "\n");
+
+        // Re-encode the string digital signature into bytes to test that it can still be used for verification
+        byte[] testSignature = Base64.getDecoder().decode(signedData);
+        System.out.println("Testing restore of signature: " + Arrays.equals(testSignature, digitalSignature));
+
+        // Re-verify the restored signature
+        // Take the un-signed, original hash of the data (SHA256String), decrypt testSignature using the public key, then compare
+        verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), testSignature);
+        System.out.println("Has the restored signature been verified: " + verified + "\n");
+
+        return signedData;
+    } catch (Exception e){
+        e.printStackTrace();
+    }
+
+        return null;
   }
 
 }
@@ -475,6 +544,10 @@ public class Blockchain {
     static String blockchain = "[First block]";
     static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
+
+    // Create public and private keys for this participant
+    // Generate a public key / private key pair
+    static final KeyPair keyPair = BlockMarshaller.generateKeyPair(999);
 
     public static void main(String[] args) throws Exception {
 
