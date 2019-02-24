@@ -289,7 +289,7 @@ class NewBlockCreator{
         fileName = "BlockInput" + Integer.toString(Blockchain.PID) + ".txt";
     }
 
-    public void createBlocks(){
+    public Block[] createBlocks(){
 
         try{
             BufferedReader br = new BufferedReader(new FileReader(fileName));
@@ -341,22 +341,24 @@ class NewBlockCreator{
                 
 
                 // Finally, add a timestamp at the new Block's creation
-                Date date = new Date();
-                String T1 = String.format("%1$s %2$tF.%2$tT", "", date);
+                String T1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
                 
                 // Add the processID to the end of the timestamp so we don't have collisions (if 2 identical timestamps)
                 String TimeStampString = T1 + "." + pnum + "\n";
                 blockArray[i].setTimestamp(TimeStampString);
-               
+                
+                // Add tiny delay to prevent duplicate Timestamps
+                try{Thread.sleep(10);}catch(Exception e){e.printStackTrace();}
             }
 
             br.close();
+            return blockArray;
 
         } catch(IOException e){
             e.printStackTrace();
         }
         
-
+        return null;
     }
 
 }
@@ -439,25 +441,33 @@ class UnverifiedBlockProcessor implements Runnable{
 // The main, coordinating process which manages each of the 
 // **********************************************************************************
 
-public class Blockchain{
+public class Blockchain {
 
     static String serverName = "localhost";
     static String blockchain = "[First block]";
     static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception {
 
         // Assign Process ID
         PID = (args.length < 1) ? 0 : Integer.parseInt(args[0]);
 
         // Create thread-safe priority queue for processing unverified blocks
         // Priority goes by Block timestamp
-        final BlockingQueue<Block> queue = new PriorityBlockingQueue<Block>(0, new BlockComparator()); 
+        final BlockingQueue<Block> queue = new PriorityBlockingQueue<Block>(5, new BlockComparator()); 
 
         // Create new blocks from file
         NewBlockCreator nbc = new NewBlockCreator();
-        nbc.createBlocks();
+        Block[] blocks = nbc.createBlocks();
+        for (Block b : blocks){
+            if (b == null) break;
+            queue.add(b);
+        }
+        while(!queue.isEmpty()){
+            Block b = queue.take();
+            System.out.println(b.getTimestamp());
+        }
 
         // Perform port number setup for various Processes
         new Ports().setPorts(); 
