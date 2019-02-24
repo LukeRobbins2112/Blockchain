@@ -371,7 +371,7 @@ class Ports{
 // Produces new unverified blocks from file and multicasts them out
 // **********************************************************************************
 
-class NewBlockCreator{
+class NewBlockCreator implements Runnable{
 
     private static String fileName;
     int pnum;
@@ -390,76 +390,104 @@ class NewBlockCreator{
         fileName = "BlockInput" + Integer.toString(Blockchain.PID) + ".txt";
     }
 
-    public Block[] createBlocks(){
+    public BlockRecord createBlockRecord(String input){
+            
+        // Create a new, empty Block array
+        BlockRecord blockRecord = new BlockRecord();
+            
+        // Build the BlockRecord for the current block
+        String [] tokens = input.split(" "); 
+                
+        String ss = tokens[iSSNUM];
+        blockRecord.setFSSNum(ss);
+        blockRecord.setFFname(tokens[iFNAME]);
+        blockRecord.setFLname(tokens[iLNAME]);
+        blockRecord.setFDOB(tokens[iDOB]);
+        blockRecord.setGDiag(tokens[iDIAG]);
+        blockRecord.setGTreat(tokens[iTREAT]);
+        blockRecord.setGRx(tokens[iRX]);
+
+        return blockRecord;
+
+    }
+
+    public Block createBlock(BlockRecord blockRecord){
+
+
+        // Create a new, empty Block array
+        Block newBlock = new Block();
+
+        // Add full BlockRecord to current Block
+        newBlock.setBlockRecord(blockRecord);
+
+        // Fill the Block header //
+        // Insert the un-signed hash (@TODO call a hash on the raw data for this)
+        newBlock.setASHA256String("SHA string goes here...");
+            
+        // Insert the signed hash, using the private key and entry data 
+        // (@TODO get the hash above, and sign it using the java.security.Signature class as shown in BlockH.java)
+        newBlock.setASignedSHA256("Signed SHA string goes here...");
+
+        /* CDE: Generate a unique blockID. This would also be signed by creating process: */
+        // idA = UUID.randomUUID();
+        String suuid = new String(UUID.randomUUID().toString());
+        newBlock.setABlockID(suuid);
+        newBlock.setACreatingProcess("Process:" + Integer.toString(pnum));
+
+        // @TODO sign the blockID and include here
+        // To be set later, once the block is verified
+        newBlock.setAVerificationProcessID("-1");
+            
+        // Finally, add a timestamp at the new Block's creation
+        String T1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+            
+        // Add the processID to the end of the timestamp so we don't have collisions (if 2 identical timestamps)
+        String TimeStampString = T1 + "." + pnum + "\n";
+        newBlock.setTimestamp(TimeStampString);
+
+        return newBlock;
+    }
+
+    public ArrayList<Block> createBlocks(){
 
         try{
             BufferedReader br = new BufferedReader(new FileReader(fileName));
             String input;
 
             // @TODO for now using a fixed number of block records
-            Block[] blockArray = new Block[20];
-            BlockRecord blockRecord;
+            ArrayList<Block> blockArrayList = new ArrayList<Block>();
+            
 
-            for (int i = 0; i < 20 && (input = br.readLine()) != null; i++){
+            while ((input = br.readLine()) != null){
 
                 // Create a new, empty Block array
-                blockArray[i] = new Block();
-                blockRecord = new BlockRecord();
-                
-                // Build the BlockRecord for the current block
-                String [] tokens = input.split(" "); 
-                
-                String ss = tokens[iSSNUM];
-                blockRecord.setFSSNum(ss);
-                blockRecord.setFFname(tokens[iFNAME]);
-                blockRecord.setFLname(tokens[iLNAME]);
-                blockRecord.setFDOB(tokens[iDOB]);
-                blockRecord.setGDiag(tokens[iDIAG]);
-                blockRecord.setGTreat(tokens[iTREAT]);
-                blockRecord.setGRx(tokens[iRX]);
+                BlockRecord blockRecord = createBlockRecord(input);
+                Block newBlock = createBlock(blockRecord);
 
-                // Add full BlockRecord to current Block
-                blockArray[i].setBlockRecord(blockRecord);
-
-                // Fill the Block header //
-
-                // Insert the un-signed hash (@TODO call a hash on the raw data for this)
-                blockArray[i].setASHA256String("SHA string goes here...");
-
-                // Insert the signed hash, using the private key and entry data 
-                // (@TODO get the hash above, and sign it using the java.security.Signature class as shown in BlockH.java)
-                blockArray[i].setASignedSHA256("Signed SHA string goes here...");
-
-                /* CDE: Generate a unique blockID. This would also be signed by creating process: */
-                // idA = UUID.randomUUID();
-                String suuid = new String(UUID.randomUUID().toString());
-                blockArray[i].setABlockID(suuid);
-                blockArray[i].setACreatingProcess("Process:" + Integer.toString(pnum));
-
-                // @TODO sign the blockID and include here
-                // To be set later, once the block is verified
-                blockArray[i].setAVerificationProcessID("-1");
-                
-
-                // Finally, add a timestamp at the new Block's creation
-                String T1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
-                
-                // Add the processID to the end of the timestamp so we don't have collisions (if 2 identical timestamps)
-                String TimeStampString = T1 + "." + pnum + "\n";
-                blockArray[i].setTimestamp(TimeStampString);
+                // Add new Block to the list
+                blockArrayList.add(newBlock);
                 
                 // Add tiny delay to prevent duplicate Timestamps
                 try{Thread.sleep(10);}catch(Exception e){e.printStackTrace();}
             }
 
             br.close();
-            return blockArray;
+            return blockArrayList;
 
         } catch(IOException e){
             e.printStackTrace();
         }
         
         return null;
+    }
+
+    public void run(){
+
+        ArrayList<Block> newBlocks = createBlocks();
+
+
+
+
     }
 
 }
@@ -564,7 +592,7 @@ public class Blockchain {
 
         // Create new blocks from file
         NewBlockCreator nbc = new NewBlockCreator();
-        Block[] blocks = nbc.createBlocks();
+        ArrayList<Block> blocks = nbc.createBlocks();
         for (Block b : blocks){
             if (b == null) break;
             queue.add(b);
