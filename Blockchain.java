@@ -305,7 +305,7 @@ class BlockMarshaller{
     return null;
   }
 
-  public static String signData(String unsignedData){
+  public static String signDataString(String unsignedData){
 
     try{
         // Sign the hash of the BlockRecord data using the private key generated
@@ -570,6 +570,10 @@ public class Blockchain {
             System.out.println(b.getTimestamp());
             String marshalBlock = BlockMarshaller.marshalBlockRecord(b);
             System.out.println(marshalBlock);
+            String hash = BlockMarshaller.hashData(marshalBlock);
+            System.out.println(hash);
+            String signedHash = BlockMarshaller.signDataString(hash);
+            System.out.println(signedHash);
         }
 
         // Perform port number setup for various Processes
