@@ -130,6 +130,7 @@ class Block{
 }
 
 // POJO for packing into Block struct
+@XmlRootElement
 class BlockRecord {
  
     // Data fields
@@ -150,24 +151,31 @@ class BlockRecord {
     }
 
     public String getFFname() {return Fname;}
+    @XmlElement
     public void setFFname(String FN){this.Fname = FN;}
 
     public String getFLname() {return Lname;}
+    @XmlElement
     public void setFLname(String LN){this.Lname = LN;}
 
     public String getFSSNum() {return SSNum;}
+    @XmlElement
     public void setFSSNum(String SS){this.SSNum = SS;}
   
     public String getFDOB() {return DOB;}
+    @XmlElement
     public void setFDOB(String DOB){this.DOB = DOB;}
 
     public String getGDiag() {return Diag;}
+    @XmlElement
     public void setGDiag(String D){this.Diag = D;}
 
     public String getGTreat() {return Treat;}
+    @XmlElement
     public void setGTreat(String D){this.Treat = D;}
 
     public String getGRx() {return Rx;}
+    @XmlElement
     public void setGRx(String D){this.Rx = D;}
 
 }
@@ -184,9 +192,9 @@ class BlockComparator implements Comparator<Block>{
 // **********************************************************************************
 // Used to generate public/private keys, create hashes, etc.
 // **********************************************************************************
-class BlockEncryption{
+class BlockMarshaller{
 
-    public BlockEncryption(){
+    public BlockMarshaller(){
 
     }
 
@@ -239,9 +247,29 @@ class BlockEncryption{
         return (keyGenerator.generateKeyPair());
   }
 
-  public static String createHash(){
+  public static String marshalBlockRecord(Block block){
 
-    return "";
+    String stringXML = null;
+
+    try{
+        /* The XML conversion tools: */
+        JAXBContext jaxbContext = JAXBContext.newInstance(BlockRecord.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        StringWriter sw = new StringWriter();
+
+        // CDE Make the output pretty printed:
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
+        jaxbMarshaller.marshal(block.blockRecord, sw);
+        stringXML = sw.toString();
+        System.out.println(stringXML);
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+    
+
+    return stringXML;
   }
 
 }
@@ -275,7 +303,7 @@ class NewBlockCreator{
     private static String fileName;
     int pnum;
 
-    /* Token indexes for input: */
+    // Indices used for parsing input fields
     private static final int iFNAME = 0;
     private static final int iLNAME = 1;
     private static final int iDOB = 2;
@@ -467,6 +495,8 @@ public class Blockchain {
         while(!queue.isEmpty()){
             Block b = queue.take();
             System.out.println(b.getTimestamp());
+            String marshalBlock = BlockMarshaller.marshalBlockRecord(b);
+            System.out.println(marshalBlock);
         }
 
         // Perform port number setup for various Processes
