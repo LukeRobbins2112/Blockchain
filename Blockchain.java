@@ -55,7 +55,9 @@ import java.text.*;
 
 
 // **********************************************************************************
-// BlockRecord "struct", containing all the XML fields and methods
+// Block "struct", containing all the XML fields and methods
+// BlockRecord struct, to be hashed for Block verification
+// Block comparator, for processing Blocks in order by Timestamp
 // **********************************************************************************
 
 @XmlRootElement
@@ -68,6 +70,7 @@ class Block{
     String VerificationProcessID;
     String CreatingProcess;
     String PreviousHash;
+    String Timestamp;
 
     // BlockRecord Data
     BlockRecord blockRecord;
@@ -103,6 +106,10 @@ class Block{
     public String getAPreviousHash() {return PreviousHash;}
     @XmlElement
     public void setAPreviousHash(String PH){this.PreviousHash = PH;}
+
+    public String getTimestamp() {return Timestamp;}
+    @XmlElement
+    public void setTimestamp(String TS){this.Timestamp = TS;}
 
     // Setter/Getter for BlockRecord
 
@@ -162,6 +169,15 @@ class BlockRecord {
 
     public String getGRx() {return Rx;}
     public void setGRx(String D){this.Rx = D;}
+
+}
+
+class BlockComparator implements Comparator<Block>{
+
+    @Override
+    public int compare(Block b1, Block b2){
+        return (b1.getTimestamp().compareTo(b2.getTimestamp()));
+    }
 
 }
 
@@ -323,6 +339,14 @@ class NewBlockCreator{
                 // To be set later, once the block is verified
                 blockArray[i].setAVerificationProcessID("-1");
                 
+
+                // Finally, add a timestamp at the new Block's creation
+                Date date = new Date();
+                String T1 = String.format("%1$s %2$tF.%2$tT", "", date);
+                
+                // Add the processID to the end of the timestamp so we don't have collisions (if 2 identical timestamps)
+                String TimeStampString = T1 + "." + pnum + "\n";
+                blockArray[i].setTimestamp(TimeStampString);
                
             }
 
@@ -344,10 +368,10 @@ class NewBlockCreator{
 class UnverifiedBlockProcessor implements Runnable{
 
     // Threadsafe queue used by UnverifiedBlockProcessor and BlockVerifier
-    BlockingQueue<String> queue;
+    BlockingQueue<Block> queue;
 
-    public UnverifiedBlockProcessor(BlockingQueue<String> _queue){
-        this.queue = queue;
+    public UnverifiedBlockProcessor(BlockingQueue<Block> _queue){
+        this.queue = _queue;
     }
 
     // **************************
@@ -374,9 +398,13 @@ class UnverifiedBlockProcessor implements Runnable{
                     blockString.append(data);
                 }
 
+                // @TODO un-marshall String into Block structure
+                // Then add block to the priority queue
+                // Block receivedBlock = unmarshalBlock(blockString);
+
                 // Insert the new un-verified block into the priority queue
                 // @TODO this just puts the string in there, but should we have a key/value where the timestamp is the key used for order?
-                queue.put(blockString.toString());
+                //queue.put(receivedBlock);
 
                 sock.close(); 
             } catch (Exception x)
@@ -424,7 +452,8 @@ public class Blockchain{
         PID = (args.length < 1) ? 0 : Integer.parseInt(args[0]);
 
         // Create thread-safe priority queue for processing unverified blocks
-        final BlockingQueue<String> queue = new PriorityBlockingQueue<>(); 
+        // Priority goes by Block timestamp
+        final BlockingQueue<Block> queue = new PriorityBlockingQueue<Block>(0, new BlockComparator()); 
 
         // Create new blocks from file
         NewBlockCreator nbc = new NewBlockCreator();
