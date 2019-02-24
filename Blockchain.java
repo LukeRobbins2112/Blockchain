@@ -4,11 +4,10 @@
 // @TODO 
 
 /*
-    * Add custom comparator for PriorityQueue, for ordering Block objects by timestamp
-        * Un-marshal Blocks then use timestamp for ordering
-    * Test new marshalling with BlockRecord as inner variable of Block
-    * Add Timestamp field to Block
-    * Implement hash and signed hash for unverified blocks
+    * Set up client/server connection for transmitting newly-created unverified blocks
+    * Set up recipient for newly-created unverified blocks
+        * Push unverified blocks onto priority queue
+    * Begin implementing block verification
 */
 
 // @DONE
@@ -17,6 +16,11 @@
     * Separate the Block struct from the BlockRecord struct - Block struct has inner BlockRecord struct(s)
         * Allows you to then create a hash from the BlockRecord struct and put that into Block header
             * Unsigned hash, signed hash
+    * Add custom comparator for PriorityQueue, for ordering Block objects by timestamp
+        * Un-marshal Blocks then use timestamp for ordering
+    * Test new marshalling with BlockRecord as inner variable of Block
+    * Add Timestamp field to Block
+    * Implement hash and signed hash for unverified blocks
 */
 
 
