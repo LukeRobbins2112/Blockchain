@@ -2,6 +2,12 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - BlockH",
+            "request": "launch",
+            "mainClass": "BlockH"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - BlockInputE",
             "request": "launch",
             "mainClass": "BlockInputE"
