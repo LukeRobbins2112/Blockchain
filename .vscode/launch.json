@@ -16,7 +16,8 @@
             "type": "java",
             "name": "CodeLens (Launch) - Blockchain",
             "request": "launch",
-            "mainClass": "Blockchain"
+            "mainClass": "Blockchain",
+            "console": "integratedTerminal"
         },
         {
             "type": "java",
