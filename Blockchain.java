@@ -386,7 +386,7 @@ class BlockMarshaller{
         JAXBContext jaxbContext = JAXBContext.newInstance(Block.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         StringReader reader = new StringReader(blockXML);
-        System.out.println(blockXML);
+        // System.out.println(blockXML);
 
         // Re-create the block 
         Block block = (Block) jaxbUnmarshaller.unmarshal(reader);
@@ -689,7 +689,7 @@ class NewBlockCreator extends Thread{
     public void run(){
 
         ArrayList<Block> newBlocks = createBlocks();
-        System.out.println("Done creating blocks");
+        // System.out.println("Done creating blocks");
 
     }
 
@@ -771,7 +771,7 @@ class UnverifiedBlockProcessor extends Thread{
             while (blocksRemaining) {
                 sock = servsock.accept(); // Got a new unverified block
                 new BlockProcessor(sock).start(); // So start a thread to process it.
-                System.out.println("");
+                // System.out.println("");
             }
         } catch (IOException ioe) 
         {
@@ -847,12 +847,12 @@ class BlockVerifier extends Thread{
                 
                 // Get the leftmost 4 hex values (leftmost 16 bits) and interpret that value
                 workNumber = Integer.parseInt(testHash.substring(0,4),16); 
-                System.out.println("First 16 bits " + testHash.substring(0,4) +": " + workNumber + "\n");
+                // System.out.println("First 16 bits " + testHash.substring(0,4) +": " + workNumber + "\n");
 
                 // If the result meets the critera, we are free to add it to the beginning of the blockchain
                 if (workNumber < 20000){
-                    System.out.println("Puzzle solved!");
-                    System.out.println("The seed was: " + randString);
+                    // System.out.println("Puzzle solved!");
+                    // System.out.println("The seed was: " + randString);
                     addBlockToChain(block);
                     break;
                 }
@@ -868,10 +868,10 @@ class BlockVerifier extends Thread{
 
                 if (numBlocks != curNumBlocks || !ledgerHash.equals(mostRecentHash) || !ledgerBlockNum.equals(mostRecentBlockNum)){
                     
-                    System.out.println("Blockchain has been updated; abandoning work and re-adding Block to queue");
+                    // System.out.println("Blockchain has been updated; abandoning work and re-adding Block to queue");
                     
                     if (Blockchain.LEDGER.frontBlock().getABlockID().equals(block.getABlockID())){
-                        System.out.println("Block was verified by another process - abandon verification here");
+                        // System.out.println("Block was verified by another process - abandon verification here");
                         break;
                     }
 
@@ -951,6 +951,7 @@ class BlockVerifier extends Thread{
 
                     // Do work to verify block
                     verifyBlock(block);
+                    System.out.print("[Verified Block for " + block.blockRecord.getFFname() + "] -- ");
                     // addBlockToChain(block); // <-- this is done in verifyBlock() if the block meets the threshold
                     // multicastBlockchain();
                 }
@@ -967,7 +968,7 @@ public class Blockchain {
 
     static String serverName = "localhost";
     static String blockchain = "[First block]";
-    static int numProcesses = 1; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static int numProcesses = 2; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
