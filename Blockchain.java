@@ -82,6 +82,29 @@ class Ledger{
         this.chain = new LinkedList<Block>();
     }
 
+    public void add(Block b){
+        this.chain.addFirst(b);
+    }
+
+    public int size(){
+        return this.chain.size();
+    }
+
+    public boolean containsID(String blockID){
+
+        for (Block b : this.chain){
+            if (b.getABlockID().equals(blockID)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public String prevHash(){
+        return this.chain.peek().getASHA256String();
+    }
+
 }
 
 @XmlRootElement
@@ -361,10 +384,10 @@ class BlockMarshaller{
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         StringWriter sw = new StringWriter();
 
-        // CDE Make the output pretty printed:
+        // Format the output
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
+        // Marshal the entire blockchain into XML
         jaxbMarshaller.marshal(Blockchain.LEDGER, sw);
         stringXML = sw.toString();
         // System.out.println(stringXML);
@@ -678,7 +701,6 @@ class UnverifiedBlockProcessor extends Thread{
                 BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
                 // Read the full block entry as a marshalled string
-                // @TODO might just be sent as a single string, might not have to "build" it like this
                 StringBuilder blockString = new StringBuilder();
                 String data;
                 while((data = in.readLine()) != null){
@@ -760,7 +782,7 @@ class BlockVerifier extends Thread{
 
     boolean checkBlockUnique(Block block){
 
-        if (Blockchain.blockIDs.contains(block.getABlockID())){
+        if (Blockchain.LEDGER.containsID(block.getABlockID())){
             return false;
         }
 
@@ -768,7 +790,7 @@ class BlockVerifier extends Thread{
     }
 
     public void addBlockToChain(Block block){
-
+        Blockchain.LEDGER.add(block);
     }
 
     public void multicastBlockchain(){
@@ -815,14 +837,12 @@ class BlockVerifier extends Thread{
                 // If the block is a new one, add to the beginning of the Blockchain and multicast the updated chain
                 if (duplicateBlock == false){
                     addBlockToChain(block);
-                    Blockchain.blockIDs.add(block.getABlockID());
                     multicastBlockchain();
                 }
 
             }catch(InterruptedException ie) { ie.printStackTrace(); }
 
         }
-
 
     }
 
@@ -839,7 +859,7 @@ public class Blockchain {
     static final KeyPair keyPair = BlockMarshaller.generateKeyPair(999);
 
     // Hashmap to store Block ID's, check for duplicates
-    static HashSet<String> blockIDs = new HashSet<String>();
+    // static HashSet<String> blockIDs = new HashSet<String>();
 
     // The Blockchain itself - linked list of blocks
     static Ledger LEDGER = new Ledger();
@@ -856,9 +876,9 @@ public class Blockchain {
         b1.setABlockID("BLOCK_1");
         b2.setABlockID("BLOCK_2");
         b3.setABlockID("BLOCK_3");
-        LEDGER.chain.addFirst(b1);
-        LEDGER.chain.addFirst(b2);
-        LEDGER.chain.addFirst(b3);
+        LEDGER.add(b1);
+        LEDGER.add(b2);
+        LEDGER.add(b3);
 
         String marshalList = BlockMarshaller.marshalLedger();
 
