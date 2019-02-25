@@ -119,7 +119,7 @@ class Ledger{
     }
 
     public Block frontBlock(){
-        return this.chain.getFirst()
+        return this.chain.getFirst();
     }
 
     public String prevHash(){
@@ -930,9 +930,7 @@ class BlockVerifier extends Thread{
     }
 
     public void addBlockToChain(Block block){
-        synchronized (Blockchain.LEDGER){
-            Blockchain.LEDGER.add(block);
-        }
+        Blockchain.LEDGER.add(block);
     }
 
     public void multicastBlockchain(){
@@ -1034,7 +1032,7 @@ class LedgerProcessor extends Thread{
     
         }
 
-        public synchronized void updateLedger(Ledger receivedLedger){
+        public void updateLedger(Ledger receivedLedger){
 
             // Check to see if receivedLedger is longer, or has an earlier head node, than Blockchain.LEDGER
             int curLedgerSize = Blockchain.LEDGER.size();
@@ -1094,9 +1092,7 @@ class LedgerProcessor extends Thread{
                 Ledger receivedLedger = BlockMarshaller.unmarshalLedger(ledgerString.toString());
 
                 // Decide whether to update Ledger, and replace if criteria met
-                synchronized (Blockchain.LEDGER){
-                    updateLedger(receivedLedger);
-                }
+                updateLedger(receivedLedger);
                 
 
                 sock.close(); 
@@ -1137,7 +1133,7 @@ public class Blockchain {
 
     static String serverName = "localhost";
     static String blockchain = "[First block]";
-    static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static int numProcesses = 1; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
