@@ -768,7 +768,7 @@ class UnverifiedBlockProcessor extends Thread{
         try{
             ServerSocket servsock = new ServerSocket(Ports.UnverifiedBlockServerPort, q_len);
       
-            while (blocksRemaining) {
+            while (true) {
                 sock = servsock.accept(); // Got a new unverified block
                 new BlockProcessor(sock).start(); // So start a thread to process it.
                 // System.out.println("");
@@ -855,6 +855,9 @@ class BlockVerifier extends Thread{
                     // System.out.println("The seed was: " + randString);
                     addBlockToChain(block);
                     break;
+                }
+                else{
+                    System.out.print("Fails criteria - ");
                 }
 
                 // Check for blockchain updates
@@ -951,7 +954,7 @@ class BlockVerifier extends Thread{
 
                     // Do work to verify block
                     verifyBlock(block);
-                    System.out.print("[Verified Block for " + block.blockRecord.getFFname() + "] -- ");
+                    System.out.println("[Verified Block for " + block.blockRecord.getFFname() + "] -- ");
                     // addBlockToChain(block); // <-- this is done in verifyBlock() if the block meets the threshold
                     // multicastBlockchain();
                 }
@@ -968,7 +971,7 @@ public class Blockchain {
 
     static String serverName = "localhost";
     static String blockchain = "[First block]";
-    static int numProcesses = 2; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
@@ -1041,6 +1044,9 @@ public class Blockchain {
         // New thread to process new unverified blocks and insert into priority queue
         new UnverifiedBlockProcessor(queue).start();
 
+        // Sleep for a bit to wait for queue to fill
+        try{ Thread.sleep(1000); } catch(Exception e){} 
+
         // New thread to start creating blocks
         new NewBlockCreator().start(); 
 
@@ -1049,9 +1055,6 @@ public class Blockchain {
 
         // New thread to validate blocks and add to Ledger
         new BlockVerifier(queue).start(); 
-
-        System.out.println("Done");
-
         
     }
 
