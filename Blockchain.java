@@ -4,10 +4,12 @@
 // @TODO 
 
 /*
-    * Set up client/server connection for transmitting newly-created unverified blocks
-    * Set up recipient for newly-created unverified blocks
-        * Push unverified blocks onto priority queue
     * Begin implementing block verification
+        * Perform work
+    * Create actual block chain from newly-verified blocks
+        * Make sure there are no duplicates, and check timestamp/length
+        * Add blocks to the beginning
+    * Multicast updated Ledger
 */
 
 // @DONE
@@ -21,6 +23,9 @@
     * Test new marshalling with BlockRecord as inner variable of Block
     * Add Timestamp field to Block
     * Implement hash and signed hash for unverified blocks
+    * Set up client/server connection for transmitting newly-created unverified blocks
+     * Set up recipient for newly-created unverified blocks
+        * Push unverified blocks onto priority queue
 */
 
 
@@ -62,6 +67,7 @@ import java.text.*;
 
 
 // **********************************************************************************
+// Ledger - aka Blockchain - contains list of Blocks (can be marshalled as a whole)
 // Block "struct", containing all the XML fields and methods
 // BlockRecord struct, to be hashed for Block verification
 // Block comparator, for processing Blocks in order by Timestamp
@@ -272,6 +278,31 @@ class BlockMarshaller{
         return null;
   }
 
+  public static String marshalBlockRecord(Block block){
+
+    String stringXML = null;
+
+    try{
+        /* The XML conversion tools: */
+        JAXBContext jaxbContext = JAXBContext.newInstance(BlockRecord.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        StringWriter sw = new StringWriter();
+
+        // CDE Make the output pretty printed:
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
+        jaxbMarshaller.marshal(block.blockRecord, sw);
+        stringXML = sw.toString();
+        // System.out.println(stringXML);
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+    
+
+    return stringXML;
+  }
+
   public static String marshalBlock(Block block){
 
     String stringXML = null;
@@ -317,31 +348,6 @@ class BlockMarshaller{
     }
     
     return null;
-  }
-
-  public static String marshalBlockRecord(Block block){
-
-    String stringXML = null;
-
-    try{
-        /* The XML conversion tools: */
-        JAXBContext jaxbContext = JAXBContext.newInstance(BlockRecord.class);
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-        StringWriter sw = new StringWriter();
-
-        // CDE Make the output pretty printed:
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
-        jaxbMarshaller.marshal(block.blockRecord, sw);
-        stringXML = sw.toString();
-        // System.out.println(stringXML);
-    } catch(Exception e){
-        e.printStackTrace();
-    }
-    
-
-    return stringXML;
   }
 
   public static String marshalLedger(){
