@@ -266,7 +266,11 @@ class BlockMarshaller{
     String stringXML = null;
 
     try{
-        /* The XML conversion tools: */
+
+        // If kill signal sent, send indication to receiving thread
+        if (block.getABlockID().equals("NO_RECORDS_REMAINING")) return "NO_RECORDS_REMAINING";
+        
+        // Marshal block to XML
         JAXBContext jaxbContext = JAXBContext.newInstance(Block.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         StringWriter sw = new StringWriter();
@@ -277,7 +281,7 @@ class BlockMarshaller{
         /* CDE We marshal the block object into an XML string so it can be sent over the network: */
         jaxbMarshaller.marshal(block, sw);
         stringXML = sw.toString();
-        System.out.println(stringXML);
+        // System.out.println(stringXML);
     } catch(Exception e){
         e.printStackTrace();
     }
@@ -320,7 +324,7 @@ class BlockMarshaller{
         /* CDE We marshal the block object into an XML string so it can be sent over the network: */
         jaxbMarshaller.marshal(block.blockRecord, sw);
         stringXML = sw.toString();
-        System.out.println(stringXML);
+        // System.out.println(stringXML);
     } catch(Exception e){
         e.printStackTrace();
     }
@@ -360,25 +364,25 @@ class BlockMarshaller{
         
         // Verify the signature, using the public key generated
         boolean verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), digitalSignature);
-        System.out.println("Has the signature been verified: " + verified + "\n");
+        //System.out.println("Has the signature been verified: " + verified + "\n");
         
-        System.out.println("Original SHA256 Hash: " + unsignedData + "\n");
+        //System.out.println("Original SHA256 Hash: " + unsignedData + "\n");
 
         /* Add the SHA256String to the header for the block. We turn the byte[] signature into a string so that it can be placed into
         the block, but also show how to return the string to a byte[], which you'll need if you want to use it later.*/
 
         // Get the String representation of the digital signature created from the private key + BlockRecord hash
         String signedData = Base64.getEncoder().encodeToString(digitalSignature);
-        System.out.println("The signed SHA-256 string: " + signedData + "\n");
+        //System.out.println("The signed SHA-256 string: " + signedData + "\n");
 
         // Re-encode the string digital signature into bytes to test that it can still be used for verification
         byte[] testSignature = Base64.getDecoder().decode(signedData);
-        System.out.println("Testing restore of signature: " + Arrays.equals(testSignature, digitalSignature));
+        //System.out.println("Testing restore of signature: " + Arrays.equals(testSignature, digitalSignature));
 
         // Re-verify the restored signature
         // Take the un-signed, original hash of the data (SHA256String), decrypt testSignature using the public key, then compare
         verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), testSignature);
-        System.out.println("Has the restored signature been verified: " + verified + "\n");
+        //System.out.println("Has the restored signature been verified: " + verified + "\n");
 
         return signedData;
     } catch (Exception e){
@@ -414,7 +418,7 @@ class Ports{
 // Produces new unverified blocks from file and multicasts them out
 // **********************************************************************************
 
-class NewBlockCreator implements Runnable{
+class NewBlockCreator extends Thread{
 
     private static String fileName;
     int pnum;
@@ -516,7 +520,7 @@ class NewBlockCreator implements Runnable{
 
             // Send a sample unverified block to each server
             for(int i=0; i < Blockchain.numProcesses; i++){
-                sock = new Socket(Blockchain.serverName, Ports.UnverifiedBlockServerPort);
+                sock = new Socket(Blockchain.serverName, Ports.UnverifiedBlockServerPortBase + i);
                 toServer = new PrintStream(sock.getOutputStream());
                 toServer.println(marshalledBlock);
                 toServer.flush();
@@ -555,6 +559,11 @@ class NewBlockCreator implements Runnable{
                 try{Thread.sleep(10);}catch(Exception e){e.printStackTrace();}
             }
 
+            // SEND KILL SIGNAL INDICATING NO MORE RECORDS
+            Block killBlock = new Block();
+            killBlock.setABlockID("NO_RECORDS_REMAINING");
+            marshalAndMulticast(killBlock);
+
             br.close();
             return blockArrayList;
 
@@ -568,6 +577,7 @@ class NewBlockCreator implements Runnable{
     public void run(){
 
         ArrayList<Block> newBlocks = createBlocks();
+        System.out.println("Done creating blocks");
 
     }
 
@@ -577,13 +587,15 @@ class NewBlockCreator implements Runnable{
 // Receives unverified blocks and places them on priority queue to be processed
 // **********************************************************************************
 
-class UnverifiedBlockProcessor implements Runnable{
+class UnverifiedBlockProcessor extends Thread{
 
     // Threadsafe queue used by UnverifiedBlockProcessor and BlockVerifier
     BlockingQueue<Block> queue;
+    boolean blocksRemaining;
 
     public UnverifiedBlockProcessor(BlockingQueue<Block> _queue){
         this.queue = _queue;
+        this.blocksRemaining = true;
     }
 
     // **************************
@@ -607,6 +619,13 @@ class UnverifiedBlockProcessor implements Runnable{
                 StringBuilder blockString = new StringBuilder();
                 String data;
                 while((data = in.readLine()) != null){
+
+                    if (data.equals("NO_RECORDS_REMAINING")){
+                        UnverifiedBlockProcessor.this.blocksRemaining = false;
+                        sock.close();
+                        return;
+                    }
+
                     blockString.append(data);
                     blockString.append("\n");
                 }
@@ -617,6 +636,8 @@ class UnverifiedBlockProcessor implements Runnable{
 
                 // Insert the new un-verified block into the priority queue
                 UnverifiedBlockProcessor.this.queue.put(receivedBlock);
+
+                // if (blockString != null) System.out.println("PUSHED UNVERIFIED BLOCK ONTO QUEUE\n");
 
                 sock.close(); 
             } catch (Exception x)
@@ -636,7 +657,7 @@ class UnverifiedBlockProcessor implements Runnable{
         try{
             ServerSocket servsock = new ServerSocket(Ports.UnverifiedBlockServerPort, q_len);
       
-            while (true) {
+            while (blocksRemaining) {
                 sock = servsock.accept(); // Got a new unverified block
                 new BlockProcessor(sock).start(); // So start a thread to process it.
             }
@@ -675,10 +696,12 @@ public class Blockchain {
         new Ports().setPorts(); 
 
         // New thread to process new unverified blocks and insert into priority queue
-        new Thread(new UnverifiedBlockProcessor(queue)).start();
+        new UnverifiedBlockProcessor(queue).start();
 
         // New thread to start creating blocks
-        new Thread(new NewBlockCreator()).start(); 
+        new NewBlockCreator().start(); 
+
+        System.out.println("Done");
 
 
 
