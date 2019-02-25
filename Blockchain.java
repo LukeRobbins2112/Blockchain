@@ -942,14 +942,15 @@ class BlockVerifier extends Thread{
                     break;
                 }
 
-                // Do work to verify block
-                verifyBlock(block);
-
                 // Check to see if block is already verified
                 boolean duplicateBlock = checkBlockUnique(block);
 
                 // If the block is a new one, add to the beginning of the Blockchain and multicast the updated chain
                 if (duplicateBlock == false){
+
+                    // Do work to verify block
+                    verifyBlock(block);
+
                     addBlockToChain(block);
                     multicastBlockchain();
                 }
