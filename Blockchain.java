@@ -413,7 +413,6 @@ class Ports{
     }
 }
 
-
 // **********************************************************************************
 // Produces new unverified blocks from file and multicasts them out
 // **********************************************************************************
@@ -675,6 +674,82 @@ class UnverifiedBlockProcessor extends Thread{
 // The main, coordinating process which manages each of the 
 // **********************************************************************************
 
+class BlockVerifier extends Thread{
+
+    BlockingQueue<Block> queue;
+    boolean blocksRemaining;
+
+    public BlockVerifier(BlockingQueue<Block> _queue){
+        this.queue = _queue;
+        this.blocksRemaining = true;
+    }
+
+    public void verifyBlock(Block block){
+
+        // For now, just perform fake work
+        // @TODO implement actual block verification
+	    for(int i=0; i< 100; i++){ 
+	      int j = ThreadLocalRandom.current().nextInt(0,10);
+	      try{Thread.sleep(500);}catch(Exception e){e.printStackTrace();}
+          if (j < 3) break; // <- how hard our fake work is; about 1.5 seconds.
+        }
+
+    }
+
+    boolean checkBlockUnique(Block block){
+
+        if (Blockchain.blockIDs.contains(block.getABlockID())){
+            return false;
+        }
+
+        return true;
+    }
+
+    public void addBlockToChain(Block block){
+
+    }
+
+    public void multicastBlockchain(){
+        PrintStream toServer;
+        Socket sock;
+
+
+    }
+
+    public void run(){
+
+        while(blocksRemaining){
+
+            try{
+                Block block = this.queue.take();
+
+                // Test to see if we're done
+                if (block.getABlockID().equals("NO_RECORDS_REMAINING")){
+                    break;
+                }
+
+                // Do work to verify block
+                verifyBlock(block);
+
+                // Check to see if block is already verified
+                boolean duplicateBlock = checkBlockUnique(block);
+
+                // If the block is a new one, add to the beginning of the Blockchain and multicast the updated chain
+                if (duplicateBlock == false){
+                    addBlockToChain(block);
+                    Blockchain.blockIDs.add(block.getABlockID());
+                    multicastBlockchain();
+                }
+                
+            }catch(InterruptedException ie) { ie.printStackTrace(); }
+
+        }
+
+
+    }
+
+}
+
 public class Blockchain {
 
     static String serverName = "localhost";
@@ -685,6 +760,12 @@ public class Blockchain {
     // Create public and private keys for this participant
     // Generate a public key / private key pair
     static final KeyPair keyPair = BlockMarshaller.generateKeyPair(999);
+
+    // Hashmap to store Block ID's, check for duplicates
+    static HashSet<String> blockIDs = new HashSet<String>();
+
+    // The Blockchain itself - linked list of blocks
+    LinkedList<Block> BLOCKCHAIN = new LinkedList<Block>();
 
     public static void main(String[] args) throws Exception {
 
@@ -705,26 +786,6 @@ public class Blockchain {
         new NewBlockCreator().start(); 
 
         System.out.println("Done");
-
-
-
-        // // Create new blocks from file
-        // NewBlockCreator nbc = new NewBlockCreator();
-        // ArrayList<Block> blocks = nbc.createBlocks();
-        // for (Block b : blocks){
-        //     if (b == null) break;
-        //     queue.add(b);
-        // }
-        // while(!queue.isEmpty()){
-        //     Block b = queue.take();
-        //     System.out.println(b.getTimestamp());
-        //     String marshalBlock = BlockMarshaller.marshalBlockRecord(b);
-        //     System.out.println(marshalBlock);
-        //     String hash = BlockMarshaller.hashData(marshalBlock);
-        //     System.out.println(hash);
-        //     String signedHash = BlockMarshaller.signDataString(hash);
-        //     System.out.println(signedHash);
-        // }
 
         
     }
