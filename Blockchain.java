@@ -823,7 +823,7 @@ class BlockVerifier extends Thread{
             
                 // Get sequential blockNum of most recent Block on chain, add 1
                 String prevBlockNum = Blockchain.LEDGER.prevBlockNum();
-                String newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum + 1));
+                String newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum) + 1);
                 block.blockRecord.setBlockNumber(newBlockNum);
                 
                 // Get hash of most recent block on the chain
@@ -853,7 +853,8 @@ class BlockVerifier extends Thread{
                 if (workNumber < 20000){
                     System.out.println("Puzzle solved!");
                     System.out.println("The seed was: " + randString);
-                    Blockchain.LEDGER.add(block);
+                    addBlockToChain(block);
+                    break;
                 }
 
                 // Check for blockchain updates
@@ -950,8 +951,7 @@ class BlockVerifier extends Thread{
 
                     // Do work to verify block
                     verifyBlock(block);
-
-                    addBlockToChain(block);
+                    // addBlockToChain(block); // <-- this is done in verifyBlock() if the block meets the threshold
                     multicastBlockchain();
                 }
 
@@ -981,22 +981,38 @@ public class Blockchain {
 
     // Running tests
     static final boolean RUN_TESTS = true;
-    public static void Test(){
+    public static void Test(BlockingQueue<Block> queue){
 
         if (RUN_TESTS){
 
         Block b1 = new Block();
         Block b2 = new Block();
         Block b3 = new Block();
+
         b1.setABlockID("BLOCK_1");
+        b1.setASHA256String("block1_prev_hash");
+
         b2.setABlockID("BLOCK_2");
+        b2.setASHA256String("block2_prev_hash");
+        b2.blockRecord.setBlockNumber("3");
+
         b3.setABlockID("BLOCK_3");
-        LEDGER.add(b1);
-        LEDGER.add(b2);
+        b3.setASHA256String("block3_prev_hash");
+        b3.blockRecord.setBlockNumber("2");
+
         LEDGER.add(b3);
+        LEDGER.add(b2);
 
+
+
+        // Validate work function
+        BlockVerifier bv = new BlockVerifier(queue);
+        bv.verifyBlock(b1);
+        bv.addBlockToChain(b1);
+
+
+        // Validate Ledger marshalling
         String marshalList = BlockMarshaller.marshalLedger();
-
         Ledger bc = BlockMarshaller.unmarshalLedger(marshalList);
         for (Block b : bc.chain){
             System.out.println(b.getABlockID());
@@ -1019,7 +1035,7 @@ public class Blockchain {
         //*********************************************************************************************** */
 
         // VALIDATE ANY FUNCTIONS / DATA
-        Test();
+        Test(queue);
 
         //*********************************************************************************************** */
 
