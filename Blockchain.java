@@ -9,7 +9,7 @@
     * Create actual block chain from newly-verified blocks
         * Make sure there are no duplicates, and check timestamp/length
         * Add blocks to the beginning
-    * Multicast updated Ledger
+    * Multicast updated Ledger *** UN-COMMENT multicastLedger() call in BlockVerifier method
 */
 
 // @DONE
@@ -944,15 +944,15 @@ class BlockVerifier extends Thread{
                 }
 
                 // Check to see if block is already verified
-                boolean duplicateBlock = checkBlockUnique(block);
+                boolean blockIsUnique = checkBlockUnique(block);
 
                 // If the block is a new one, add to the beginning of the Blockchain and multicast the updated chain
-                if (duplicateBlock == false){
+                if (blockIsUnique == true){
 
                     // Do work to verify block
                     verifyBlock(block);
                     // addBlockToChain(block); // <-- this is done in verifyBlock() if the block meets the threshold
-                    multicastBlockchain();
+                    // multicastBlockchain();
                 }
 
             }catch(InterruptedException ie) { ie.printStackTrace(); }
@@ -980,7 +980,7 @@ public class Blockchain {
     static Ledger LEDGER = new Ledger();
 
     // Running tests
-    static final boolean RUN_TESTS = true;
+    static final boolean RUN_TESTS = false;
     public static void Test(BlockingQueue<Block> queue){
 
         if (RUN_TESTS){
@@ -1002,8 +1002,6 @@ public class Blockchain {
 
         LEDGER.add(b3);
         LEDGER.add(b2);
-
-
 
         // Validate work function
         BlockVerifier bv = new BlockVerifier(queue);
@@ -1044,6 +1042,12 @@ public class Blockchain {
 
         // New thread to start creating blocks
         new NewBlockCreator().start(); 
+
+        // Sleep for a bit to wait for queue to fill
+        try{ Thread.sleep(1000); } catch(Exception e){} 
+
+        // New thread to validate blocks and add to Ledger
+        new BlockVerifier(queue).start(); 
 
         System.out.println("Done");
 
