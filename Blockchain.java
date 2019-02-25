@@ -68,6 +68,17 @@ import java.text.*;
 // **********************************************************************************
 
 @XmlRootElement
+class BlockChain{
+
+    public LinkedList<Block> chain;
+
+    public BlockChain(){
+        this.chain = new LinkedList<Block>();
+    }
+
+}
+
+@XmlRootElement
 class Block{
 
     // Block Information
@@ -331,6 +342,32 @@ class BlockMarshaller{
     
 
     return stringXML;
+  }
+
+  public static String marshalBlockChain(){
+
+    String stringXML = null;
+
+    try{
+        
+        // Marshal block to XML
+        JAXBContext jaxbContext = JAXBContext.newInstance(BlockChain.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+        StringWriter sw = new StringWriter();
+
+        // CDE Make the output pretty printed:
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
+        jaxbMarshaller.marshal(Blockchain.BLOCKCHAIN, sw);
+        stringXML = sw.toString();
+        // System.out.println(stringXML);
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+
+    return stringXML;
+    
   }
 
   public static String hashData(String data){
@@ -713,6 +750,22 @@ class BlockVerifier extends Thread{
         PrintStream toServer;
         Socket sock;
 
+        String blockchainString = BlockMarshaller.marshalBlockChain();
+
+        try{
+
+            for(int i=0; i < Blockchain.numProcesses; i++){
+                sock = new Socket(Blockchain.serverName, Ports.BlockchainServerPortBase + i);
+                toServer = new PrintStream(sock.getOutputStream());
+                toServer.println(blockchainString); 
+                toServer.flush(); 
+                sock.close();
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        
 
     }
 
@@ -740,7 +793,7 @@ class BlockVerifier extends Thread{
                     Blockchain.blockIDs.add(block.getABlockID());
                     multicastBlockchain();
                 }
-                
+
             }catch(InterruptedException ie) { ie.printStackTrace(); }
 
         }
@@ -765,7 +818,7 @@ public class Blockchain {
     static HashSet<String> blockIDs = new HashSet<String>();
 
     // The Blockchain itself - linked list of blocks
-    LinkedList<Block> BLOCKCHAIN = new LinkedList<Block>();
+    static BlockChain BLOCKCHAIN = new BlockChain();
 
     public static void main(String[] args) throws Exception {
 
