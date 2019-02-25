@@ -68,11 +68,11 @@ import java.text.*;
 // **********************************************************************************
 
 @XmlRootElement
-class BlockChain{
+class Ledger{
 
     public LinkedList<Block> chain;
 
-    public BlockChain(){
+    public Ledger(){
         this.chain = new LinkedList<Block>();
     }
 
@@ -344,14 +344,14 @@ class BlockMarshaller{
     return stringXML;
   }
 
-  public static String marshalBlockChain(){
+  public static String marshalLedger(){
 
     String stringXML = null;
 
     try{
         
         // Marshal block to XML
-        JAXBContext jaxbContext = JAXBContext.newInstance(BlockChain.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(Ledger.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         StringWriter sw = new StringWriter();
 
@@ -359,7 +359,7 @@ class BlockMarshaller{
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         /* CDE We marshal the block object into an XML string so it can be sent over the network: */
-        jaxbMarshaller.marshal(Blockchain.BLOCKCHAIN, sw);
+        jaxbMarshaller.marshal(Blockchain.LEDGER, sw);
         stringXML = sw.toString();
         // System.out.println(stringXML);
     } catch(Exception e){
@@ -368,6 +368,25 @@ class BlockMarshaller{
 
     return stringXML;
     
+  }
+
+  public static Ledger unmarshalLedger(String blockchainXML){
+
+    try{
+        JAXBContext jaxbContext = JAXBContext.newInstance(Ledger.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        StringReader reader = new StringReader(blockchainXML);
+        // System.out.println(blockchainXML);
+
+        // Re-create the block 
+        Ledger blockChain = (Ledger) jaxbUnmarshaller.unmarshal(reader);
+        return blockChain;
+        
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+    
+    return null;
   }
 
   public static String hashData(String data){
@@ -750,7 +769,7 @@ class BlockVerifier extends Thread{
         PrintStream toServer;
         Socket sock;
 
-        String blockchainString = BlockMarshaller.marshalBlockChain();
+        String blockchainString = BlockMarshaller.marshalLedger();
 
         try{
 
@@ -811,26 +830,57 @@ public class Blockchain {
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
-    // Generate a public key / private key pair
     static final KeyPair keyPair = BlockMarshaller.generateKeyPair(999);
 
     // Hashmap to store Block ID's, check for duplicates
     static HashSet<String> blockIDs = new HashSet<String>();
 
     // The Blockchain itself - linked list of blocks
-    static BlockChain BLOCKCHAIN = new BlockChain();
+    static Ledger LEDGER = new Ledger();
+
+    // Running tests
+    static final boolean RUN_TESTS = true;
+    public static void Test(){
+
+        if (RUN_TESTS){
+
+        Block b1 = new Block();
+        Block b2 = new Block();
+        Block b3 = new Block();
+        b1.setABlockID("BLOCK_1");
+        b2.setABlockID("BLOCK_2");
+        b3.setABlockID("BLOCK_3");
+        LEDGER.chain.addFirst(b1);
+        LEDGER.chain.addFirst(b2);
+        LEDGER.chain.addFirst(b3);
+
+        String marshalList = BlockMarshaller.marshalLedger();
+
+        Ledger bc = BlockMarshaller.unmarshalLedger(marshalList);
+        for (Block b : bc.chain){
+            System.out.println(b.getABlockID());
+        }
+
+        }
+    }
 
     public static void main(String[] args) throws Exception {
 
         // Assign Process ID
         PID = (args.length < 1) ? 0 : Integer.parseInt(args[0]);
 
-        // Create thread-safe priority queue for processing unverified blocks
-        // Priority goes by Block timestamp
+        // Create thread-safe priority queue for processing unverified blocks -- Priority goes by Block timestamp
         final BlockingQueue<Block> queue = new PriorityBlockingQueue<Block>(5, new BlockComparator()); 
 
         // Perform port number setup for various Processes
         new Ports().setPorts(); 
+
+        //*********************************************************************************************** */
+
+        // VALIDATE ANY FUNCTIONS / DATA
+        Test();
+
+        //*********************************************************************************************** */
 
         // New thread to process new unverified blocks and insert into priority queue
         new UnverifiedBlockProcessor(queue).start();
