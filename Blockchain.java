@@ -202,6 +202,11 @@ class Block{
         this.blockRecord.Diag = BR.getGDiag();
         this.blockRecord.Treat = BR.getGTreat();
         this.blockRecord.Rx = BR.getGRx();
+
+        // For hashing
+        this.blockRecord.blockNumber = BR.getBlockNumber();
+        this.blockRecord.seedString = BR.getSeedString();
+        this.blockRecord.VerificationProcessID = BR.getAVerificationProcessID();
     }
 
 
@@ -226,8 +231,7 @@ class BlockRecord {
     String seedString;
 
     public BlockRecord(){
-        blockNumber = "-1";
-        seedString= "";
+
     }
 
     public String getFFname() {return Fname;}
@@ -419,7 +423,7 @@ class BlockMarshaller{
     return null;
   }
 
-  public static String marshalLedger(){
+  public static String marshalLedger(Ledger ledger){
 
     String stringXML = null;
 
@@ -434,7 +438,7 @@ class BlockMarshaller{
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         // Marshal the entire blockchain into XML
-        jaxbMarshaller.marshal(Blockchain.LEDGER, sw);
+        jaxbMarshaller.marshal(ledger, sw);
         stringXML = sw.toString();
         // System.out.println(stringXML);
     } catch(Exception e){
@@ -937,7 +941,8 @@ class BlockVerifier extends Thread{
         PrintStream toServer;
         Socket sock;
 
-        String blockchainString = BlockMarshaller.marshalLedger();
+        String blockchainString = BlockMarshaller.marshalLedger(Blockchain.LEDGER);
+        // System.out.println("Blockchain String: \n " + blockchainString);
 
         try{
 
@@ -1019,7 +1024,7 @@ class LedgerProcessor extends Thread{
     
             try{
                 // Get XML String for Ledger
-                String output = BlockMarshaller.marshalLedger();
+                String output = BlockMarshaller.marshalLedger(Blockchain.LEDGER);
                     
                 FileWriter fileWriter = new FileWriter(Ledger.outputFile);
                 PrintWriter printWriter = new PrintWriter(fileWriter);
@@ -1090,6 +1095,7 @@ class LedgerProcessor extends Thread{
 
                 // Unmarshal Ledger into object
                 Ledger receivedLedger = BlockMarshaller.unmarshalLedger(ledgerString.toString());
+                // System.out.println("Blockchain String: \n " + BlockMarshaller.marshalLedger(receivedLedger));
 
                 // Decide whether to update Ledger, and replace if criteria met
                 updateLedger(receivedLedger);
@@ -1176,7 +1182,7 @@ public class Blockchain {
 
 
         // Validate Ledger marshalling
-        String marshalList = BlockMarshaller.marshalLedger();
+        String marshalList = BlockMarshaller.marshalLedger(Blockchain.LEDGER);
         Ledger bc = BlockMarshaller.unmarshalLedger(marshalList);
         for (Block b : bc.chain){
             System.out.println(b.getABlockID());
