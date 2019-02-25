@@ -164,15 +164,16 @@ class UnverifiedBlockConsumer implements Runnable {
     System.out.println("Starting the Unverified Block Priority Queue Consumer thread.\n");
     try{
       while(true){ // Consume from the incoming queue. Do the work to verify. Mulitcast new blockchain
-	data = queue.take(); // Will blocked-wait on empty queue
-	System.out.println("Consumer got unverified: " + data);
+        data = queue.take(); // Will blocked-wait on empty queue
+        System.out.println("Consumer got unverified: " + data);
 	
-	// Ordindarily we would do real work here, based on the incoming data.
-	int j; // Here we fake doing some work (That is, here we could cheat, so not ACTUAL work...)
-	for(int i=0; i< 100; i++){ // put a limit on the fake work for this example
-	  j = ThreadLocalRandom.current().nextInt(0,10);
-	  try{Thread.sleep(500);}catch(Exception e){e.printStackTrace();}
-	  if (j < 3) break; // <- how hard our fake work is; about 1.5 seconds.
+      // Ordindarily we would do real work here, based on the incoming data.
+      // Here we fake doing some work (That is, here we could cheat, so not ACTUAL work...)
+	    int j; 
+	    for(int i=0; i< 100; i++){ 
+	      j = ThreadLocalRandom.current().nextInt(0,10);
+	      try{Thread.sleep(500);}catch(Exception e){e.printStackTrace();}
+	      if (j < 3) break; // <- how hard our fake work is; about 1.5 seconds.
 	}
 	
 	/* With duplicate blocks that have been verified by different procs ordinarily we would keep only the one with
