@@ -80,6 +80,15 @@ class Ledger{
 
     public Ledger(){
         this.chain = new LinkedList<Block>();
+
+         // Initial "dummy" block
+        Block dummy = new Block();
+        dummy.setABlockID("dummy");
+        dummy.blockRecord.setBlockNumber("1");
+        String brMarshal = BlockMarshaller.marshalBlockRecord(dummy);
+        String brHash = BlockMarshaller.hashData(brMarshal);
+        dummy.setASHA256String(brHash);
+        this.chain.addFirst(dummy);
     }
 
     public void add(Block b){
