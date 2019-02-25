@@ -4,12 +4,12 @@
 // @TODO 
 
 /*
-    * Begin implementing block verification
-        * Perform work
-    * Create actual block chain from newly-verified blocks
-        * Make sure there are no duplicates, and check timestamp/length
-        * Add blocks to the beginning
+   
+    
     * Multicast updated Ledger *** UN-COMMENT multicastLedger() call in BlockVerifier method
+        * When you receive a Ledger, check timestamp and length against current when deciding whether to update
+            * If received chain is longer, or timestamp of receive blockchain's head node is earlier than 
+                timestamp of current blockchain's head node, replace with received chain
 */
 
 // @DONE
@@ -26,6 +26,11 @@
     * Set up client/server connection for transmitting newly-created unverified blocks
      * Set up recipient for newly-created unverified blocks
         * Push unverified blocks onto priority queue
+     * Begin implementing block verification
+        * Perform work
+    * Create actual block chain from newly-verified blocks
+        * Make sure there are no duplicates
+        * Add blocks to the beginning
 */
 
 
