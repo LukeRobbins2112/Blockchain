@@ -261,7 +261,7 @@ class BlockMarshaller{
         return null;
   }
 
-  public static String marshallBlock(Block block){
+  public static String marshalBlock(Block block){
 
     String stringXML = null;
 
@@ -283,6 +283,25 @@ class BlockMarshaller{
     }
 
     return stringXML;
+  }
+
+  public static Block unmarshalBlock(String blockXML){
+
+    try{
+        JAXBContext jaxbContext = JAXBContext.newInstance(Block.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        StringReader reader = new StringReader(blockXML);
+        System.out.println(blockXML);
+
+        // Re-create the block 
+        Block block = (Block) jaxbUnmarshaller.unmarshal(reader);
+        return block;
+        
+    } catch(Exception e){
+        e.printStackTrace();
+    }
+    
+    return null;
   }
 
   public static String marshalBlockRecord(Block block){
@@ -486,7 +505,7 @@ class NewBlockCreator implements Runnable{
     public void marshalAndMulticast(Block block){
 
         // Get String of marshalled unverified Block to multicast
-        String marshalledBlock = BlockMarshaller.marshallBlock(block);
+        String marshalledBlock = BlockMarshaller.marshalBlock(block);
 
         // Multicast Block
 
@@ -497,7 +516,7 @@ class NewBlockCreator implements Runnable{
 
             // Send a sample unverified block to each server
             for(int i=0; i < Blockchain.numProcesses; i++){
-                sock = new Socket(Blockchain.serverName, Ports.UnverifiedBlockServerPortBase + i);
+                sock = new Socket(Blockchain.serverName, Ports.UnverifiedBlockServerPort);
                 toServer = new PrintStream(sock.getOutputStream());
                 toServer.println(marshalledBlock);
                 toServer.flush();
@@ -550,9 +569,6 @@ class NewBlockCreator implements Runnable{
 
         ArrayList<Block> newBlocks = createBlocks();
 
-
-
-
     }
 
 }
@@ -592,15 +608,15 @@ class UnverifiedBlockProcessor implements Runnable{
                 String data;
                 while((data = in.readLine()) != null){
                     blockString.append(data);
+                    blockString.append("\n");
                 }
 
                 // @TODO un-marshall String into Block structure
                 // Then add block to the priority queue
-                // Block receivedBlock = unmarshalBlock(blockString);
+                Block receivedBlock = BlockMarshaller.unmarshalBlock(blockString.toString());
 
                 // Insert the new un-verified block into the priority queue
-                // @TODO this just puts the string in there, but should we have a key/value where the timestamp is the key used for order?
-                //queue.put(receivedBlock);
+                UnverifiedBlockProcessor.this.queue.put(receivedBlock);
 
                 sock.close(); 
             } catch (Exception x)
@@ -655,26 +671,36 @@ public class Blockchain {
         // Priority goes by Block timestamp
         final BlockingQueue<Block> queue = new PriorityBlockingQueue<Block>(5, new BlockComparator()); 
 
-        // Create new blocks from file
-        NewBlockCreator nbc = new NewBlockCreator();
-        ArrayList<Block> blocks = nbc.createBlocks();
-        for (Block b : blocks){
-            if (b == null) break;
-            queue.add(b);
-        }
-        while(!queue.isEmpty()){
-            Block b = queue.take();
-            System.out.println(b.getTimestamp());
-            String marshalBlock = BlockMarshaller.marshalBlockRecord(b);
-            System.out.println(marshalBlock);
-            String hash = BlockMarshaller.hashData(marshalBlock);
-            System.out.println(hash);
-            String signedHash = BlockMarshaller.signDataString(hash);
-            System.out.println(signedHash);
-        }
-
         // Perform port number setup for various Processes
         new Ports().setPorts(); 
+
+        // New thread to process new unverified blocks and insert into priority queue
+        new Thread(new UnverifiedBlockProcessor(queue)).start();
+
+        // New thread to start creating blocks
+        new Thread(new NewBlockCreator()).start(); 
+
+
+
+        // // Create new blocks from file
+        // NewBlockCreator nbc = new NewBlockCreator();
+        // ArrayList<Block> blocks = nbc.createBlocks();
+        // for (Block b : blocks){
+        //     if (b == null) break;
+        //     queue.add(b);
+        // }
+        // while(!queue.isEmpty()){
+        //     Block b = queue.take();
+        //     System.out.println(b.getTimestamp());
+        //     String marshalBlock = BlockMarshaller.marshalBlockRecord(b);
+        //     System.out.println(marshalBlock);
+        //     String hash = BlockMarshaller.hashData(marshalBlock);
+        //     System.out.println(hash);
+        //     String signedHash = BlockMarshaller.signDataString(hash);
+        //     System.out.println(signedHash);
+        // }
+
+        
     }
 
 }
