@@ -6,7 +6,7 @@
 /*
    
     
-    * Multicast updated Ledger *** UN-COMMENT multicastLedger() call in BlockVerifier method
+    * Multicast updated Ledger
         * When you receive a Ledger, check timestamp and length against current when deciding whether to update
             * If received chain is longer, or timestamp of receive blockchain's head node is earlier than 
                 timestamp of current blockchain's head node, replace with received chain
@@ -81,7 +81,10 @@ import java.text.*;
 @XmlRootElement
 class Ledger{
 
+    @XmlElement(name = "Block")
     public LinkedList<Block> chain;
+
+    public static final String outputFile = "BlockchainLedger.xml";
 
     public Ledger(){
         this.chain = new LinkedList<Block>();
@@ -116,15 +119,26 @@ class Ledger{
     }
 
     public Block frontBlock(){
-        return this.chain.peek();
+        return this.chain.getFirst()
     }
 
     public String prevHash(){
-        return this.chain.peek().getASHA256String();
+        return this.chain.getFirst().getASHA256String();
     }
 
     public String prevBlockNum(){
-        return this.chain.peek().blockRecord.getBlockNumber();
+        return this.chain.getFirst().blockRecord.getBlockNumber();
+    }
+
+    public String LedgerString(){
+        StringBuilder output = new StringBuilder();
+
+        for (Block b : this.chain){
+            String entry = "[Block #" + b.blockRecord.getBlockNumber() + " (" + b.blockRecord.getFFname() + ", " + b.blockRecord.getFLname() + ")] - ";
+            output.append(entry);
+        }
+
+        return output.toString();
     }
 
 }
@@ -208,11 +222,12 @@ class BlockRecord {
 
     // Validation fields
     String VerificationProcessID;
-    String blockNumber = "-1";
-    String seedString = "";
+    String blockNumber;
+    String seedString;
 
     public BlockRecord(){
-
+        blockNumber = "-1";
+        seedString= "";
     }
 
     public String getFFname() {return Fname;}
@@ -786,7 +801,8 @@ class UnverifiedBlockProcessor extends Thread{
 }
 
 // **********************************************************************************
-// The main, coordinating process which manages each of the 
+// Plucks unverified blocks off priority queue
+// Verifies blocks, adds them to new blockchain, and multicasts new blockchain ledger
 // **********************************************************************************
 
 class BlockVerifier extends Thread{
@@ -824,12 +840,7 @@ class BlockVerifier extends Thread{
             // Guaranteed to not fit criteria until we recalculate in loop
             int workNumber = Integer.parseInt("FFFF",16); 
 
-            // Only have to get previous hash and previous block num once, unless chain is updated
             
-                // Get sequential blockNum of most recent Block on chain, add 1
-                String prevBlockNum = Blockchain.LEDGER.prevBlockNum();
-                String newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum) + 1);
-                block.blockRecord.setBlockNumber(newBlockNum);
                 
                 // Get hash of most recent block on the chain
                 String prevBlockHash = Blockchain.LEDGER.prevHash();
@@ -838,6 +849,13 @@ class BlockVerifier extends Thread{
             block.blockRecord.setAVerificationProcessID(Integer.toString(Blockchain.PID));
 
             while(workNumber > 20000){
+
+                // Only have to get previous hash and previous block num once, unless chain is updated
+            
+                // Get sequential blockNum of most recent Block on chain, add 1
+                String prevBlockNum = Blockchain.LEDGER.prevBlockNum();
+                String newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum) + 1);
+                block.blockRecord.setBlockNumber(newBlockNum);
 
                 // Get a new random AlphaNumeric seed string, insert into block
                 String randString = randomAlphaNumeric(8); 
@@ -856,13 +874,12 @@ class BlockVerifier extends Thread{
 
                 // If the result meets the critera, we are free to add it to the beginning of the blockchain
                 if (workNumber < 20000){
-                    // System.out.println("Puzzle solved!");
-                    // System.out.println("The seed was: " + randString);
+                    // System.out.println("Block num: " + block.blockRecord.getBlockNumber());
                     addBlockToChain(block);
                     break;
                 }
                 else{
-                    System.out.print("Fails criteria - ");
+                    // System.out.print("Fails criteria - ");
                 }
 
                 // Check for blockchain updates
@@ -913,7 +930,9 @@ class BlockVerifier extends Thread{
     }
 
     public void addBlockToChain(Block block){
-        Blockchain.LEDGER.add(block);
+        synchronized (Blockchain.LEDGER){
+            Blockchain.LEDGER.add(block);
+        }
     }
 
     public void multicastBlockchain(){
@@ -961,7 +980,7 @@ class BlockVerifier extends Thread{
                     verifyBlock(block);
                     System.out.println("[Verified Block for " + block.blockRecord.getFFname() + "] -- ");
                     // addBlockToChain(block); // <-- this is done in verifyBlock() if the block meets the threshold
-                    // multicastBlockchain();
+                    multicastBlockchain();
                 }
 
             }catch(InterruptedException ie) { ie.printStackTrace(); }
@@ -972,6 +991,148 @@ class BlockVerifier extends Thread{
 
 }
 
+// **********************************************************************************
+// Reads in multicasted Ledgers
+// Compares received Ledgers to current, and replaces current if:
+    // Received Ledger is longer
+    // Received Ledger has same length but earlier timestamp on head Block
+// **********************************************************************************
+class LedgerProcessor extends Thread{
+
+    public LedgerProcessor(){
+
+    }
+
+    // **************************
+    // Inner class
+    // **************************
+    class LedgerProcessorWorker extends Thread{
+
+        Socket sock;
+
+        public LedgerProcessorWorker(Socket s){
+            this.sock = s;
+        }
+
+        public void writeToFile(){
+
+            // Only write to file on Process0
+            if (Blockchain.PID != 0) return;
+    
+            try{
+                // Get XML String for Ledger
+                String output = BlockMarshaller.marshalLedger();
+                    
+                FileWriter fileWriter = new FileWriter(Ledger.outputFile);
+                PrintWriter printWriter = new PrintWriter(fileWriter);
+                printWriter.println(output);
+                printWriter.close();
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+            
+    
+        }
+
+        public synchronized void updateLedger(Ledger receivedLedger){
+
+            // Check to see if receivedLedger is longer, or has an earlier head node, than Blockchain.LEDGER
+            int curLedgerSize = Blockchain.LEDGER.size();
+            int newLedgerSize = receivedLedger.size();
+
+            // Output new/current Ledgers, and what we're doing
+            System.out.println("Current Ledger: " + Blockchain.LEDGER.LedgerString());
+            System.out.println("New Ledger: " + receivedLedger.LedgerString());
+
+            if (newLedgerSize > curLedgerSize){
+                Blockchain.LEDGER = receivedLedger;
+                writeToFile();
+                System.out.println("Set Ledger to received Ledger");
+            }
+            else if (newLedgerSize == curLedgerSize){
+                String newLedgerTime = receivedLedger.frontBlock().getTimestamp();
+                String curLedgerTime = Blockchain.LEDGER.frontBlock().getTimestamp();
+
+                if (newLedgerTime.compareTo(curLedgerTime) < 0){
+                    Blockchain.LEDGER = receivedLedger;
+                    writeToFile();
+                    System.out.println("Set Ledger to received Ledger");
+                }
+                else{
+                    System.out.println("Received Ledger Discarded");
+                }
+            }
+            else{
+                // Do nothing, disregard received Ledger
+                System.out.println("Received Ledger Discarded");
+            }
+
+            System.out.println("\n");
+
+        }
+
+        public void run(){
+
+            try{
+                BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+
+                // Read the full Ledger entry as a marshalled string
+                StringBuilder ledgerString = new StringBuilder();
+                String data;
+                while((data = in.readLine()) != null){
+
+                    if (data.equals("NO_RECORDS_REMAINING")){
+                        sock.close();
+                        return;
+                    }
+
+                    ledgerString.append(data);
+                    ledgerString.append("\n");
+                }
+
+                // Unmarshal Ledger into object
+                Ledger receivedLedger = BlockMarshaller.unmarshalLedger(ledgerString.toString());
+
+                // Decide whether to update Ledger, and replace if criteria met
+                synchronized (Blockchain.LEDGER){
+                    updateLedger(receivedLedger);
+                }
+                
+
+                sock.close(); 
+            } catch (Exception x)
+            {
+              x.printStackTrace();
+            }
+
+        }
+    }
+
+
+    public void run(){
+
+        int q_len = 6; 
+        Socket sock;
+    
+        try{
+            ServerSocket servsock = new ServerSocket(Ports.BlockchainServerPort, q_len);
+      
+            while (true) {
+                sock = servsock.accept(); // Got a new unverified block
+                new LedgerProcessorWorker(sock).start(); // So start a thread to process it.
+            }
+        } catch (IOException ioe) 
+        {
+            System.out.println(ioe);
+        }
+
+    }
+
+}
+
+// **********************************************************************************
+// The main, coordinating process which manages each of the 
+// **********************************************************************************
 public class Blockchain {
 
     static String serverName = "localhost";
@@ -1028,6 +1189,22 @@ public class Blockchain {
         }
     }
 
+    public static void getPID(){
+
+        // Read from stdin to read input
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+        // Get name
+        try{
+            System.out.print("Please enter the Process #: ");
+            Blockchain.PID = Integer.parseInt(in.readLine());
+            try{ Thread.sleep(1000); } catch(Exception e){} 
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
     public static void main(String[] args) throws Exception {
 
         // Assign Process ID
@@ -1046,11 +1223,26 @@ public class Blockchain {
 
         //*********************************************************************************************** */
 
+
+
+
+        //*********************************************************************************************** */
+            // Get PID from StdIN (for debugging)
+            // getPID();
+        //*********************************************************************************************** */
+        
+
         // New thread to process new unverified blocks and insert into priority queue
         new UnverifiedBlockProcessor(queue).start();
 
         // Sleep for a bit to wait for queue to fill
         try{ Thread.sleep(1000); } catch(Exception e){} 
+
+        // Create and start BLockchain server to accept Ledger multicasts
+        new LedgerProcessor().start();
+
+        // Sleep for a bit to wait before starting to create blocks
+        try{ Thread.sleep(1000); } catch(Exception e){}
 
         // New thread to start creating blocks
         new NewBlockCreator().start(); 
