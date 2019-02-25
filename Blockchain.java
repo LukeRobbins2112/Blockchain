@@ -1139,7 +1139,7 @@ public class Blockchain {
 
     static String serverName = "localhost";
     static String blockchain = "[First block]";
-    static int numProcesses = 1; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
