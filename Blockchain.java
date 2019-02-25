@@ -101,8 +101,16 @@ class Ledger{
         return false;
     }
 
+    public Block frontBlock(){
+        return this.chain.peek();
+    }
+
     public String prevHash(){
         return this.chain.peek().getASHA256String();
+    }
+
+    public String prevBlockNum(){
+        return this.chain.peek().blockRecord.getBlockNumber();
     }
 
 }
@@ -114,7 +122,6 @@ class Block{
     String SHA256String;
     String SignedSHA256;
     String BlockID;
-    String VerificationProcessID;
     String CreatingProcess;
     String PreviousHash;
     String Timestamp;
@@ -141,10 +148,6 @@ class Block{
     public String getABlockID() {return BlockID;}
     @XmlElement
     public void setABlockID(String BID){this.BlockID = BID;}
-
-    public String getAVerificationProcessID() {return VerificationProcessID;}
-    @XmlElement
-    public void setAVerificationProcessID(String VID){this.VerificationProcessID = VID;}
 
     public String getACreatingProcess() {return CreatingProcess;}
     @XmlElement
@@ -190,6 +193,7 @@ class BlockRecord {
     String Rx;
 
     // Validation fields
+    String VerificationProcessID;
     String blockNumber = "-1";
     String seedString = "";
 
@@ -224,6 +228,19 @@ class BlockRecord {
     public String getGRx() {return Rx;}
     @XmlElement
     public void setGRx(String D){this.Rx = D;}
+
+    // Hash data
+    public String getSeedString() {return seedString;}
+    @XmlElement
+    public void setSeedString(String sStr){this.seedString = sStr;}
+
+    public String getBlockNumber() {return blockNumber;}
+    @XmlElement
+    public void setBlockNumber(String BN){this.blockNumber = BN;}
+
+    public String getAVerificationProcessID() {return VerificationProcessID;}
+    @XmlElement
+    public void setAVerificationProcessID(String VID){this.VerificationProcessID = VID;}
 
 }
 
@@ -575,7 +592,7 @@ class NewBlockCreator extends Thread{
 
         // @TODO sign the blockID and include here
         // To be set later, once the block is verified
-        newBlock.setAVerificationProcessID("-1");
+        newBlock.blockRecord.setAVerificationProcessID("-1");
 
         // Create SHA256 hash, and signed version; insert those into Block header
         hashAndSignBlockRecord(newBlock);
@@ -762,20 +779,108 @@ class BlockVerifier extends Thread{
 
     BlockingQueue<Block> queue;
     boolean blocksRemaining;
+    private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     public BlockVerifier(BlockingQueue<Block> _queue){
         this.queue = _queue;
         this.blocksRemaining = true;
     }
 
+    // Build our random seed string
+    public static String randomAlphaNumeric(int count) {
+
+        // Just grab random characters to build String of size count, appending them
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+        }
+        return builder.toString();
+    }
+
     public void verifyBlock(Block block){
 
-        // For now, just perform fake work
-        // @TODO implement actual block verification
-	    for(int i=0; i< 100; i++){ 
-	      int j = ThreadLocalRandom.current().nextInt(0,10);
-	      try{Thread.sleep(500);}catch(Exception e){e.printStackTrace();}
-          if (j < 3) break; // <- how hard our fake work is; about 1.5 seconds.
+        // For comparison after each loop - check to make sure the Blockchain wasn't updated
+        int    curNumBlocks = Blockchain.LEDGER.size();
+        String mostRecentHash = Blockchain.LEDGER.prevHash();
+        String mostRecentBlockNum = Blockchain.LEDGER.prevBlockNum();
+
+        try {
+
+            // Guaranteed to not fit criteria until we recalculate in loop
+            int workNumber = Integer.parseInt("FFFF",16); 
+
+            // Only have to get previous hash and previous block num once, unless chain is updated
+            
+                // Get sequential blockNum of most recent Block on chain, add 1
+                String prevBlockNum = Blockchain.LEDGER.prevBlockNum();
+                String newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum + 1));
+                block.blockRecord.setBlockNumber(newBlockNum);
+                
+                // Get hash of most recent block on the chain
+                String prevBlockHash = Blockchain.LEDGER.prevHash();
+
+            // Add verifying process ID into block - only do once regardless
+            block.blockRecord.setAVerificationProcessID(Integer.toString(Blockchain.PID));
+
+            while(workNumber > 20000){
+
+                // Get a new random AlphaNumeric seed string, insert into block
+                String randString = randomAlphaNumeric(8); 
+                block.blockRecord.setSeedString(randString);
+
+                // Hash the updated block
+                String blockData = BlockMarshaller.marshalBlockRecord(block);
+
+                // Finally, combine prev block's hash with block data, and hash that combination
+                String testData = prevBlockHash + blockData;
+                String testHash = BlockMarshaller.hashData(testData);
+                
+                // Get the leftmost 4 hex values (leftmost 16 bits) and interpret that value
+                workNumber = Integer.parseInt(testHash.substring(0,4),16); 
+                System.out.println("First 16 bits " + testHash.substring(0,4) +": " + workNumber + "\n");
+
+                // If the result meets the critera, we are free to add it to the beginning of the blockchain
+                if (workNumber < 20000){
+                    System.out.println("Puzzle solved!");
+                    System.out.println("The seed was: " + randString);
+                    Blockchain.LEDGER.add(block);
+                }
+
+                // Check for blockchain updates
+                // If a new block has been added, then abandon this verification effort and start over.
+                    // Means resetting the hash and blocknum of most recent block (at front of chain)
+                // But first, check to see if one of the newly added blocks is this one; abandon this block if so
+                
+                int numBlocks = Blockchain.LEDGER.size();
+                String ledgerHash = Blockchain.LEDGER.prevHash();
+                String ledgerBlockNum = Blockchain.LEDGER.prevBlockNum();
+
+                if (numBlocks != curNumBlocks || !ledgerHash.equals(mostRecentHash) || !ledgerBlockNum.equals(mostRecentBlockNum)){
+                    
+                    System.out.println("Blockchain has been updated; abandoning work and re-adding Block to queue");
+                    
+                    if (Blockchain.LEDGER.frontBlock().getABlockID().equals(block.getABlockID())){
+                        System.out.println("Block was verified by another process - abandon verification here");
+                        break;
+                    }
+
+                    // Recalculate block number based on updated chain
+                    prevBlockNum = Blockchain.LEDGER.prevBlockNum();
+                    newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum + 1));
+                    block.blockRecord.setBlockNumber(newBlockNum);
+                    
+                    // Recalculate hash based on updated chain
+                    // Don't have to "set" since it's not part of block data
+                    prevBlockHash = Blockchain.LEDGER.prevHash();
+                }
+
+                // Sleep to give the impression of harder work
+                try{Thread.sleep(500);}catch(Exception e){e.printStackTrace();}
+
+            }
+        }catch(Exception ex) {
+            ex.printStackTrace();
         }
 
     }
