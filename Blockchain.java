@@ -1161,8 +1161,8 @@ public class Blockchain {
     // Create public and private keys for this participant
     static final KeyPair keyPair = BlockMarshaller.generateKeyPair(999);
 
-    // Hashmap to store Block ID's, check for duplicates
-    // static HashSet<String> blockIDs = new HashSet<String>();
+    // Create Public Key lookup using ProcessID
+    static final HashMap<String, String> publicKeyLookup = new HashMap<String, String>();  // <Process#, Public Key>
 
     // The Blockchain itself - linked list of blocks
     static Ledger LEDGER = new Ledger();
