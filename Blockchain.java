@@ -5,11 +5,11 @@
 
 /*
    
+    * Move fields from Block to BlockRecord, to prevent malicious changes to data
+    * Implement command line tools for additional utilities
+    * Add header to the top of BLockchain.java
+    * Add references to Blockchain.java
     
-    * Multicast updated Ledger
-        * When you receive a Ledger, check timestamp and length against current when deciding whether to update
-            * If received chain is longer, or timestamp of receive blockchain's head node is earlier than 
-                timestamp of current blockchain's head node, replace with received chain
 */
 
 // @DONE
@@ -31,6 +31,10 @@
     * Create actual block chain from newly-verified blocks
         * Make sure there are no duplicates
         * Add blocks to the beginning
+    * Multicast updated Ledger
+        * When you receive a Ledger, check timestamp and length against current when deciding whether to update
+            * If received chain is longer, or timestamp of receive blockchain's head node is earlier than 
+                timestamp of current blockchain's head node, replace with received chain
 */
 
 
