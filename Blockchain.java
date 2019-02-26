@@ -1380,7 +1380,7 @@ public class Blockchain {
         new PublicKeyServer().start();
 
         // Sleep for a bit to wait for keys to be received
-        try{ Thread.sleep(1000); } catch(Exception e){}
+        try{ Thread.sleep(2000); } catch(Exception e){}
 
         // Broadcast public Key
         broadcastPublicKey();
