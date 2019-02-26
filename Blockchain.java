@@ -150,6 +150,17 @@ class Ledger{
         return output.toString();
     }
 
+    public String creditString(){
+        StringBuilder output = new StringBuilder();
+
+        for (Block b : this.chain){
+            String entry = "[Block #" + b.blockRecord.getBlockNumber() + " verified by " + b.blockRecord.getAVerificationProcessID() + "] ";
+            output.append(entry);
+        }
+
+        return output.toString();
+    }
+
 }
 
 @XmlRootElement
@@ -1283,16 +1294,40 @@ public class Blockchain {
     // The Blockchain itself - linked list of blocks
     static Ledger LEDGER = new Ledger();
 
-    public static void getPID(){
+    public static void getUserInput(){
 
         // Read from stdin to read input
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
-        // Get name
+        
         try{
-            System.out.print("Please enter the Process #: ");
-            Blockchain.PID = Integer.parseInt(in.readLine());
-            try{ Thread.sleep(1000); } catch(Exception e){} 
+           // System.out.print("Enter a command: ");
+            
+            String input;
+            
+            
+            while(!(input = in.readLine()).equals("quit")){
+
+                String [] tokens = input.split(" ");
+                char command = Character.toUpperCase(tokens[0].charAt(0));
+                
+                switch(command){
+                    case 'C':
+                        System.out.println(Blockchain.LEDGER.creditString());
+                        break;
+                    case 'R':
+                        break;
+                    case 'V':
+                        break;
+                    case 'L':
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            System.out.println("Done");
+            
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1354,7 +1389,6 @@ public class Blockchain {
             // wait
         }
         
-
         // New thread to process new unverified blocks and insert into priority queue
         new UnverifiedBlockProcessor(queue).start();
 
@@ -1376,6 +1410,12 @@ public class Blockchain {
         // New thread to validate blocks and add to Ledger
         new BlockVerifier(queue).start(); 
         
+        // Wait until the blockchain is created before accepting input
+        // try{ Thread.sleep(10000); } catch(Exception e){} 
+
+        // Get user input - for console commands
+        getUserInput();
+
     }
 
 }
