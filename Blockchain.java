@@ -1283,27 +1283,6 @@ public class Blockchain {
     // The Blockchain itself - linked list of blocks
     static Ledger LEDGER = new Ledger();
 
-    // Running tests
-    static final boolean RUN_TESTS = false;
-    public static void Test(BlockingQueue<Block> queue){
-
-        if (RUN_TESTS){
-
-            PublicKeyServer pks = new PublicKeyServer();
-
-            PublicKey pk = keyPair.getPublic();
-            String pubKey = pks.publicKeyHex(pk);
-            System.out.println("Original public key hex:\n " + pubKey);
-
-            PublicKey pub = pks.pubKeyFromString(pubKey);
-
-            String validate = pks.publicKeyHex(pub);
-            System.out.println("Reassembled public key hex:\n " + validate);
-            System.out.println("");
-
-        }
-    }
-
     public static void getPID(){
 
         // Read from stdin to read input
