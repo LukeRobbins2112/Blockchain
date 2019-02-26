@@ -557,23 +557,18 @@ class Ports{
 // Broadcasts Public Keys to allow for signature verification
 // **********************************************************************************
 
-  class PublicKeyServer implements Runnable {
+  class PublicKeyServer extends Thread {
     //public ProcessBlock[] PBlock = new ProcessBlock[3]; // One block to store info for each process.
 
     public PublicKeyServer(){
 
     }
 
-    public String publicKeyHex(PublicKey pubKey){
+    public static String publicKeyHex(PublicKey pubKey){
 
         try{
             byte[] data = pubKey.getEncoded();
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < data.length; i++) {
-                sb.append(Integer.toString((data[i] & 0xff) + 0x100, 16).substring(1));
-            }
-    
-            String pubKeyHax = sb.toString();
+            String pubKeyHax = Base64.getEncoder().encodeToString(data);
             return pubKeyHax;
         } catch(Exception e){
             e.printStackTrace();
@@ -582,14 +577,14 @@ class Ports{
         return null;
     }
 
-    public PublicKey pubKeyFromString(String input){
-        byte[] keyData = DatatypeConverter.parseHexBinary(input);
+    public static PublicKey pubKeyFromString(String input){
+
+        byte[] keyData = Base64.getDecoder().decode(input);
 
         try{
             X509EncodedKeySpec ks = new X509EncodedKeySpec(keyData);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             PublicKey publicKey = kf.generatePublic(ks);
-            // String validate = publicKeyHex(publicKey);
             return publicKey;
         }
         catch (NoSuchAlgorithmException nsae){
@@ -618,7 +613,9 @@ class Ports{
 
             String data = in.readLine ();                       // "Process# PublicKey"
             String[] tokens = data.split(" ");                  // [Process#, PublicKey]
-            // Blockchain.publicKeyLookup.put(tokens[0], tokens[1]);
+            
+            PublicKey receivedKey = pubKeyFromString(tokens[1]);
+            Blockchain.publicKeyLookup.put(tokens[0], receivedKey);
 
             sock.close(); 
           } catch (IOException x){x.printStackTrace();}
@@ -637,7 +634,9 @@ class Ports{
             sock = servsock.accept();
             new PublicKeyWorker(sock).start(); 
         }
-      } catch (IOException ioe) {System.out.println(ioe);}
+      } catch (IOException ioe) {
+          System.out.println(ioe);
+        }
     }
 
   }
@@ -692,11 +691,10 @@ class NewBlockCreator extends Thread{
         String blockRecordHash = BlockMarshaller.hashData(marshalledBlockRecord);
         String signedBlockRecordHash = BlockMarshaller.signDataString(blockRecordHash);
 
-        // Insert the un-signed hash (@TODO call a hash on the raw data for this)
+        // Insert the un-signed hash
         block.setASHA256String(blockRecordHash);
             
         // Insert the signed hash, using the private key and entry data 
-        // (@TODO get the hash above, and sign it using the java.security.Signature class as shown in BlockH.java)
         block.setASignedSHA256(signedBlockRecordHash);
 
     }
@@ -1036,6 +1034,24 @@ class BlockVerifier extends Thread{
         
     }
 
+    // boolean verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), digitalSignature);
+    boolean verifySignature(Block block){
+
+        try{
+            byte[] hashBytes = block.SHA256String.getBytes();
+            byte[] signatureBytes = Base64.getDecoder().decode(block.SignedSHA256);
+            PublicKey key = Blockchain.publicKeyLookup.get(block.getACreatingProcess());
+    
+            boolean result = BlockMarshaller.verifySig(hashBytes, key, signatureBytes);
+            return result;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        
+
+        return false;
+    }
+
     public void addBlockToChain(Block block){
         synchronized(Blockchain.LEDGER){
             Blockchain.LEDGER.add(block);
@@ -1082,8 +1098,10 @@ class BlockVerifier extends Thread{
                 // Check to see if block is already verified
                 boolean blockIsUnique = checkBlockUnique(block);
 
+                boolean signatureVerified = verifySignature(block);
+
                 // If the block is a new one, add to the beginning of the Blockchain and multicast the updated chain
-                if (blockIsUnique == true){
+                if (blockIsUnique == true && signatureVerified == true){
 
                     // Do work to verify block
                     verifyBlock(block);
@@ -1249,7 +1267,7 @@ public class Blockchain {
 
     static String serverName = "localhost";
     static String blockchain = "[First block]";
-    static int numProcesses = 1; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
@@ -1305,13 +1323,18 @@ public class Blockchain {
 
         try{
 
-            String processID = "Process" + Blockchain.PID;
-            String publicKey = keyPair.getPublic().toString();
+            String processID = "Process:" + Blockchain.PID;
+            String publicKeyString = PublicKeyServer.publicKeyHex(keyPair.getPublic());
+            String processKeyPair = processID + " " + publicKeyString;
 
             for(int i = 0; i < numProcesses; i++){   
                 sock = new Socket(serverName, Ports.KeyServerPortBase + i);
                 toServer = new PrintStream(sock.getOutputStream());
-                toServer.println(""); 
+                
+                // Get hex of public key string data, send it
+                
+                toServer.println(processKeyPair);
+
                 toServer.flush();
                 sock.close();
             } 
@@ -1334,40 +1357,19 @@ public class Blockchain {
         // Perform port number setup for various Processes
         new Ports().setPorts(); 
 
+        // Listen for incoming public keys
+        new PublicKeyServer().start();
 
+        // Sleep for a bit to wait for keys to be received
+        try{ Thread.sleep(1000); } catch(Exception e){}
 
-        PublicKeyServer pks = new PublicKeyServer();
+        // Broadcast public Key
+        broadcastPublicKey();
 
-        PublicKey pk = keyPair.getPublic();
-        String pubKey = pks.publicKeyHex(pk);
-        System.out.println("Original public key hex:\n " + pubKey);
-
-        PublicKey pub = pks.pubKeyFromString(pubKey);
-
-        String validate = pks.publicKeyHex(pub);
-        System.out.println("Reassembled public key hex:\n " + validate);
-        System.out.println("");
-
-
-        // Broadcast Public Key for Process
-        for (int i = 0; i < numProcesses; i++){
-
+        // Wait until we get a key from each process
+        while(publicKeyLookup.size() < numProcesses){
+            // wait
         }
-
-        //*********************************************************************************************** */
-
-        // VALIDATE ANY FUNCTIONS / DATA
-        Test(queue);
-
-        //*********************************************************************************************** */
-
-
-
-
-        //*********************************************************************************************** */
-            // Get PID from StdIN (for debugging)
-            // getPID();
-        //*********************************************************************************************** */
         
 
         // New thread to process new unverified blocks and insert into priority queue
