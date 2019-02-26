@@ -105,6 +105,7 @@ class Ledger{
         String brMarshal = BlockMarshaller.marshalBlockRecord(dummy);
         String brHash = BlockMarshaller.hashData(brMarshal);
         dummy.setASHA256String(brHash);
+        dummy.setACreatingProcess(Integer.toString(Blockchain.PID));
         this.chain.addFirst(dummy);
     }
 
@@ -154,7 +155,7 @@ class Ledger{
         StringBuilder output = new StringBuilder();
 
         for (Block b : this.chain){
-            String entry = "[Block #" + b.blockRecord.getBlockNumber() + " verified by " + b.blockRecord.getAVerificationProcessID() + "] ";
+            String entry = "[Block #" + b.blockRecord.getBlockNumber() + " verified by Process:" + b.blockRecord.getAVerificationProcessID() + "] ";
             output.append(entry);
         }
 
