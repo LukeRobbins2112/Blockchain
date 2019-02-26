@@ -48,6 +48,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import javax.xml.bind.DatatypeConverter;
+
+import java.security.KeyFactory;
 /* Security and cryptography */
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -57,8 +60,10 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import javax.crypto.Cipher;
+import java.security.spec.X509EncodedKeySpec;
 
 import java.security.MessageDigest; // To produce the SHA-256 hash.
 
@@ -547,6 +552,95 @@ class Ports{
       BlockchainServerPort = BlockchainServerPortBase + (Blockchain.PID);
     }
 }
+
+// **********************************************************************************
+// Broadcasts Public Keys to allow for signature verification
+// **********************************************************************************
+
+  class PublicKeyServer implements Runnable {
+    //public ProcessBlock[] PBlock = new ProcessBlock[3]; // One block to store info for each process.
+
+    public PublicKeyServer(){
+
+    }
+
+    public String publicKeyHex(PublicKey pubKey){
+
+        try{
+            byte[] data = pubKey.getEncoded();
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < data.length; i++) {
+                sb.append(Integer.toString((data[i] & 0xff) + 0x100, 16).substring(1));
+            }
+    
+            String pubKeyHax = sb.toString();
+            return pubKeyHax;
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public PublicKey pubKeyFromString(String input){
+        byte[] keyData = DatatypeConverter.parseHexBinary(input);
+
+        try{
+            X509EncodedKeySpec ks = new X509EncodedKeySpec(keyData);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = kf.generatePublic(ks);
+            // String validate = publicKeyHex(publicKey);
+            return publicKey;
+        }
+        catch (NoSuchAlgorithmException nsae){
+            nsae.printStackTrace();
+        }
+        catch (InvalidKeySpecException ikse){
+            ikse.printStackTrace();
+        }
+
+        return null;
+    }
+
+    //************* */
+    // Inner Class
+    //************* */
+    class PublicKeyWorker extends Thread { // Class definition
+
+        Socket sock; 
+        PublicKeyWorker (Socket s) {
+            sock = s;
+        }
+
+        public void run(){
+          try{
+            BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+
+            String data = in.readLine ();                       // "Process# PublicKey"
+            String[] tokens = data.split(" ");                  // [Process#, PublicKey]
+            // Blockchain.publicKeyLookup.put(tokens[0], tokens[1]);
+
+            sock.close(); 
+          } catch (IOException x){x.printStackTrace();}
+        }
+      }
+      
+    public void run(){
+
+      int q_len = 6;
+      Socket sock;
+
+      try{
+
+        ServerSocket servsock = new ServerSocket(Ports.KeyServerPort, q_len);
+        while (true) {
+            sock = servsock.accept();
+            new PublicKeyWorker(sock).start(); 
+        }
+      } catch (IOException ioe) {System.out.println(ioe);}
+    }
+
+  }
 
 // **********************************************************************************
 // Produces new unverified blocks from file and multicasts them out
@@ -1155,14 +1249,14 @@ public class Blockchain {
 
     static String serverName = "localhost";
     static String blockchain = "[First block]";
-    static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static int numProcesses = 1; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
     static final KeyPair keyPair = BlockMarshaller.generateKeyPair(999);
 
     // Create Public Key lookup using ProcessID
-    static final HashMap<String, String> publicKeyLookup = new HashMap<String, String>();  // <Process#, Public Key>
+    static final HashMap<String, PublicKey> publicKeyLookup = new HashMap<String, PublicKey>();  // <Process#, Public Key>
 
     // The Blockchain itself - linked list of blocks
     static Ledger LEDGER = new Ledger();
@@ -1173,36 +1267,17 @@ public class Blockchain {
 
         if (RUN_TESTS){
 
-        Block b1 = new Block();
-        Block b2 = new Block();
-        Block b3 = new Block();
+            PublicKeyServer pks = new PublicKeyServer();
 
-        b1.setABlockID("BLOCK_1");
-        b1.setASHA256String("block1_prev_hash");
+            PublicKey pk = keyPair.getPublic();
+            String pubKey = pks.publicKeyHex(pk);
+            System.out.println("Original public key hex:\n " + pubKey);
 
-        b2.setABlockID("BLOCK_2");
-        b2.setASHA256String("block2_prev_hash");
-        b2.blockRecord.setBlockNumber("3");
+            PublicKey pub = pks.pubKeyFromString(pubKey);
 
-        b3.setABlockID("BLOCK_3");
-        b3.setASHA256String("block3_prev_hash");
-        b3.blockRecord.setBlockNumber("2");
-
-        LEDGER.add(b3);
-        LEDGER.add(b2);
-
-        // Validate work function
-        BlockVerifier bv = new BlockVerifier(queue);
-        bv.verifyBlock(b1);
-        bv.addBlockToChain(b1);
-
-
-        // Validate Ledger marshalling
-        String marshalList = BlockMarshaller.marshalLedger(Blockchain.LEDGER);
-        Ledger bc = BlockMarshaller.unmarshalLedger(marshalList);
-        for (Block b : bc.chain){
-            System.out.println(b.getABlockID());
-        }
+            String validate = pks.publicKeyHex(pub);
+            System.out.println("Reassembled public key hex:\n " + validate);
+            System.out.println("");
 
         }
     }
@@ -1223,6 +1298,31 @@ public class Blockchain {
 
     }
 
+    public static void broadcastPublicKey(){
+
+        Socket sock;
+        PrintStream toServer;
+
+        try{
+
+            String processID = "Process" + Blockchain.PID;
+            String publicKey = keyPair.getPublic().toString();
+
+            for(int i = 0; i < numProcesses; i++){   
+                sock = new Socket(serverName, Ports.KeyServerPortBase + i);
+                toServer = new PrintStream(sock.getOutputStream());
+                toServer.println(""); 
+                toServer.flush();
+                sock.close();
+            } 
+
+            Thread.sleep(1000);  // Give processes time to set up Keys
+        }catch (Exception x) {
+            x.printStackTrace ();
+        }
+
+    }
+
     public static void main(String[] args) throws Exception {
 
         // Assign Process ID
@@ -1233,6 +1333,26 @@ public class Blockchain {
 
         // Perform port number setup for various Processes
         new Ports().setPorts(); 
+
+
+
+        PublicKeyServer pks = new PublicKeyServer();
+
+        PublicKey pk = keyPair.getPublic();
+        String pubKey = pks.publicKeyHex(pk);
+        System.out.println("Original public key hex:\n " + pubKey);
+
+        PublicKey pub = pks.pubKeyFromString(pubKey);
+
+        String validate = pks.publicKeyHex(pub);
+        System.out.println("Reassembled public key hex:\n " + validate);
+        System.out.println("");
+
+
+        // Broadcast Public Key for Process
+        for (int i = 0; i < numProcesses; i++){
+
+        }
 
         //*********************************************************************************************** */
 
