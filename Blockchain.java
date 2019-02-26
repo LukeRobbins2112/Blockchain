@@ -1063,7 +1063,6 @@ class LedgerProcessor extends Thread{
 
                 if (newLedgerSize > curLedgerSize){
                     Blockchain.LEDGER = receivedLedger;
-                    writeToFile();
                     System.out.println("Set Ledger to received Ledger");
                 }
                 else if (newLedgerSize == curLedgerSize){
@@ -1072,7 +1071,6 @@ class LedgerProcessor extends Thread{
 
                     if (newLedgerTime.compareTo(curLedgerTime) < 0){
                         Blockchain.LEDGER = receivedLedger;
-                        writeToFile();
                         System.out.println("Set Ledger to received Ledger");
                     }
                     else{
@@ -1083,6 +1081,9 @@ class LedgerProcessor extends Thread{
                     // Do nothing, disregard received Ledger
                     System.out.println("Received Ledger Discarded");
                 }
+
+                // Create output file
+                writeToFile();
 
                 System.out.println("\n");
 
