@@ -101,7 +101,7 @@ class Ledger{
          // Initial "dummy" block
         Block dummy = new Block();
         dummy.setABlockID("dummy");
-        dummy.blockRecord.setBlockNumber("1");
+        dummy.blockRecord.setBlockNumber("0");
         String brMarshal = BlockMarshaller.marshalBlockRecord(dummy);
         String brHash = BlockMarshaller.hashData(brMarshal);
         dummy.setASHA256String(brHash);
@@ -156,6 +156,23 @@ class Ledger{
 
         for (Block b : this.chain){
             String entry = "[Block #" + b.blockRecord.getBlockNumber() + " verified by Process:" + b.blockRecord.getAVerificationProcessID() + "] ";
+            output.append(entry);
+        }
+
+        return output.toString();
+    }
+
+    public String recordList(){
+
+        StringBuilder output = new StringBuilder();
+
+        for (Block b : this.chain){
+
+            if (b.getABlockID().equals("dummy")) continue; // Don't include dummy
+
+            BlockRecord br = b.getBlockRecord();
+            String entry = br.getBlockNumber() + ". " + b.getTimestamp() + " " + br.getFFname() + " " + br.getFLname()
+                        + (" " + br.getFDOB() + " " + br.getFSSNum() + " " + br.getGDiag() + " " + br.getGRx() + " " + br.getGTreat() + "\n");
             output.append(entry);
         }
 
@@ -742,7 +759,7 @@ class NewBlockCreator extends Thread{
         String T1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
             
         // Add the processID to the end of the timestamp so we don't have collisions (if 2 identical timestamps)
-        String TimeStampString = T1 + "." + pnum + "\n";
+        String TimeStampString = T1 + "." + pnum;
         newBlock.setTimestamp(TimeStampString);
 
         return newBlock;
@@ -1321,6 +1338,7 @@ public class Blockchain {
                     case 'V':
                         break;
                     case 'L':
+                        System.out.println(Blockchain.LEDGER.recordList());
                         break;
                     default:
                         break;
