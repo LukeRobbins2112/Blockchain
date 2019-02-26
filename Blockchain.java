@@ -834,107 +834,119 @@ class BlockVerifier extends Thread{
 
     public void verifyBlock(Block block){
 
-        // For comparison after each loop - check to make sure the Blockchain wasn't updated
-        int    curNumBlocks = Blockchain.LEDGER.size();
-        String mostRecentHash = Blockchain.LEDGER.prevHash();
-        String mostRecentBlockNum = Blockchain.LEDGER.prevBlockNum();
+        synchronized(Blockchain.LEDGER){
 
-        try {
+            // For comparison after each loop - check to make sure the Blockchain wasn't updated
+            int    curNumBlocks = Blockchain.LEDGER.size();
+            String mostRecentHash = Blockchain.LEDGER.prevHash();
+            String mostRecentBlockNum = Blockchain.LEDGER.prevBlockNum();
 
-            // Guaranteed to not fit criteria until we recalculate in loop
-            int workNumber = Integer.parseInt("FFFF",16); 
+            try {
 
-            
+                // Guaranteed to not fit criteria until we recalculate in loop
+                int workNumber = Integer.parseInt("FFFF",16); 
+
                 
-                // Get hash of most recent block on the chain
-                String prevBlockHash = Blockchain.LEDGER.prevHash();
-
-            // Add verifying process ID into block - only do once regardless
-            block.blockRecord.setAVerificationProcessID(Integer.toString(Blockchain.PID));
-
-            while(workNumber > 20000){
-
-                // Only have to get previous hash and previous block num once, unless chain is updated
-            
-                // Get sequential blockNum of most recent Block on chain, add 1
-                String prevBlockNum = Blockchain.LEDGER.prevBlockNum();
-                String newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum) + 1);
-                block.blockRecord.setBlockNumber(newBlockNum);
-
-                // Get a new random AlphaNumeric seed string, insert into block
-                String randString = randomAlphaNumeric(8); 
-                block.blockRecord.setSeedString(randString);
-
-                // Hash the updated block
-                String blockData = BlockMarshaller.marshalBlockRecord(block);
-
-                // Finally, combine prev block's hash with block data, and hash that combination
-                String testData = prevBlockHash + blockData;
-                String testHash = BlockMarshaller.hashData(testData);
-                
-                // Get the leftmost 4 hex values (leftmost 16 bits) and interpret that value
-                workNumber = Integer.parseInt(testHash.substring(0,4),16); 
-                // System.out.println("First 16 bits " + testHash.substring(0,4) +": " + workNumber + "\n");
-
-                // If the result meets the critera, we are free to add it to the beginning of the blockchain
-                if (workNumber < 20000){
-                    // System.out.println("Block num: " + block.blockRecord.getBlockNumber());
-                    addBlockToChain(block);
-                    break;
-                }
-                else{
-                    // System.out.print("Fails criteria - ");
-                }
-
-                // Check for blockchain updates
-                // If a new block has been added, then abandon this verification effort and start over.
-                    // Means resetting the hash and blocknum of most recent block (at front of chain)
-                // But first, check to see if one of the newly added blocks is this one; abandon this block if so
-                
-                int numBlocks = Blockchain.LEDGER.size();
-                String ledgerHash = Blockchain.LEDGER.prevHash();
-                String ledgerBlockNum = Blockchain.LEDGER.prevBlockNum();
-
-                if (numBlocks != curNumBlocks || !ledgerHash.equals(mostRecentHash) || !ledgerBlockNum.equals(mostRecentBlockNum)){
                     
-                    // System.out.println("Blockchain has been updated; abandoning work and re-adding Block to queue");
+                    // Get hash of most recent block on the chain
+                    String prevBlockHash = Blockchain.LEDGER.prevHash();
+
+                // Add verifying process ID into block - only do once regardless
+                block.blockRecord.setAVerificationProcessID(Integer.toString(Blockchain.PID));
+
+                while(workNumber > 20000){
+
+                    // Only have to get previous hash and previous block num once, unless chain is updated
+                
+                    // Get sequential blockNum of most recent Block on chain, add 1
+                    String prevBlockNum = Blockchain.LEDGER.prevBlockNum();
+                    String newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum) + 1);
+                    block.blockRecord.setBlockNumber(newBlockNum);
+
+                    // Get a new random AlphaNumeric seed string, insert into block
+                    String randString = randomAlphaNumeric(8); 
+                    block.blockRecord.setSeedString(randString);
+
+                    // Hash the updated block
+                    String blockData = BlockMarshaller.marshalBlockRecord(block);
+
+                    // Finally, combine prev block's hash with block data, and hash that combination
+                    String testData = prevBlockHash + blockData;
+                    String testHash = BlockMarshaller.hashData(testData);
                     
-                    if (Blockchain.LEDGER.frontBlock().getABlockID().equals(block.getABlockID())){
-                        // System.out.println("Block was verified by another process - abandon verification here");
+                    // Get the leftmost 4 hex values (leftmost 16 bits) and interpret that value
+                    workNumber = Integer.parseInt(testHash.substring(0,4),16); 
+                    // System.out.println("First 16 bits " + testHash.substring(0,4) +": " + workNumber + "\n");
+
+                    // If the result meets the critera, we are free to add it to the beginning of the blockchain
+                    if (workNumber < 20000){
+                        // System.out.println("Block num: " + block.blockRecord.getBlockNumber());
+                        addBlockToChain(block);
                         break;
                     }
+                    else{
+                        // System.out.print("Fails criteria - ");
+                    }
 
-                    // Recalculate block number based on updated chain
-                    prevBlockNum = Blockchain.LEDGER.prevBlockNum();
-                    newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum + 1));
-                    block.blockRecord.setBlockNumber(newBlockNum);
+                    // Check for blockchain updates
+                    // If a new block has been added, then abandon this verification effort and start over.
+                        // Means resetting the hash and blocknum of most recent block (at front of chain)
+                    // But first, check to see if one of the newly added blocks is this one; abandon this block if so
                     
-                    // Recalculate hash based on updated chain
-                    // Don't have to "set" since it's not part of block data
-                    prevBlockHash = Blockchain.LEDGER.prevHash();
+                    int numBlocks = Blockchain.LEDGER.size();
+                    String ledgerHash = Blockchain.LEDGER.prevHash();
+                    String ledgerBlockNum = Blockchain.LEDGER.prevBlockNum();
+
+                    if (numBlocks != curNumBlocks || !ledgerHash.equals(mostRecentHash) || !ledgerBlockNum.equals(mostRecentBlockNum)){
+                        
+                        // System.out.println("Blockchain has been updated; abandoning work and re-adding Block to queue");
+                        
+                        if (Blockchain.LEDGER.frontBlock().getABlockID().equals(block.getABlockID())){
+                            // System.out.println("Block was verified by another process - abandon verification here");
+                            break;
+                        }
+
+                        // Recalculate block number based on updated chain
+                        prevBlockNum = Blockchain.LEDGER.prevBlockNum();
+                        newBlockNum = Integer.toString(Integer.parseInt(prevBlockNum + 1));
+                        block.blockRecord.setBlockNumber(newBlockNum);
+                        
+                        // Recalculate hash based on updated chain
+                        // Don't have to "set" since it's not part of block data
+                        prevBlockHash = Blockchain.LEDGER.prevHash();
+                    }
+
+                    // Sleep to give the impression of harder work
+                    try{Thread.sleep(500);}catch(Exception e){e.printStackTrace();}
+
                 }
-
-                // Sleep to give the impression of harder work
-                try{Thread.sleep(500);}catch(Exception e){e.printStackTrace();}
-
+            }catch(Exception ex) {
+                ex.printStackTrace();
             }
-        }catch(Exception ex) {
-            ex.printStackTrace();
+            
         }
+
+        
 
     }
 
     boolean checkBlockUnique(Block block){
 
-        if (Blockchain.LEDGER.containsID(block.getABlockID())){
-            return false;
+        synchronized (Blockchain.LEDGER){
+            if (Blockchain.LEDGER.containsID(block.getABlockID())){
+                return false;
+            }
+    
+            return true;
         }
-
-        return true;
+        
     }
 
     public void addBlockToChain(Block block){
-        Blockchain.LEDGER.add(block);
+        synchronized(Blockchain.LEDGER){
+            Blockchain.LEDGER.add(block);
+        }
+        
     }
 
     public void multicastBlockchain(){
@@ -1039,39 +1051,42 @@ class LedgerProcessor extends Thread{
 
         public void updateLedger(Ledger receivedLedger){
 
-            // Check to see if receivedLedger is longer, or has an earlier head node, than Blockchain.LEDGER
-            int curLedgerSize = Blockchain.LEDGER.size();
-            int newLedgerSize = receivedLedger.size();
+            synchronized(Blockchain.LEDGER){
 
-            // Output new/current Ledgers, and what we're doing
-            System.out.println("Current Ledger: " + Blockchain.LEDGER.LedgerString());
-            System.out.println("New Ledger: " + receivedLedger.LedgerString());
+                // Check to see if receivedLedger is longer, or has an earlier head node, than Blockchain.LEDGER
+                int curLedgerSize = Blockchain.LEDGER.size();
+                int newLedgerSize = receivedLedger.size();
 
-            if (newLedgerSize > curLedgerSize){
-                Blockchain.LEDGER = receivedLedger;
-                writeToFile();
-                System.out.println("Set Ledger to received Ledger");
-            }
-            else if (newLedgerSize == curLedgerSize){
-                String newLedgerTime = receivedLedger.frontBlock().getTimestamp();
-                String curLedgerTime = Blockchain.LEDGER.frontBlock().getTimestamp();
+                // Output new/current Ledgers, and what we're doing
+                System.out.println("Current Ledger: " + Blockchain.LEDGER.LedgerString());
+                System.out.println("New Ledger: " + receivedLedger.LedgerString());
 
-                if (newLedgerTime.compareTo(curLedgerTime) < 0){
+                if (newLedgerSize > curLedgerSize){
                     Blockchain.LEDGER = receivedLedger;
                     writeToFile();
                     System.out.println("Set Ledger to received Ledger");
                 }
+                else if (newLedgerSize == curLedgerSize){
+                    String newLedgerTime = receivedLedger.frontBlock().getTimestamp();
+                    String curLedgerTime = Blockchain.LEDGER.frontBlock().getTimestamp();
+
+                    if (newLedgerTime.compareTo(curLedgerTime) < 0){
+                        Blockchain.LEDGER = receivedLedger;
+                        writeToFile();
+                        System.out.println("Set Ledger to received Ledger");
+                    }
+                    else{
+                        System.out.println("Received Ledger Discarded");
+                    }
+                }
                 else{
+                    // Do nothing, disregard received Ledger
                     System.out.println("Received Ledger Discarded");
                 }
-            }
-            else{
-                // Do nothing, disregard received Ledger
-                System.out.println("Received Ledger Discarded");
-            }
 
-            System.out.println("\n");
+                System.out.println("\n");
 
+            }
         }
 
         public void run(){
