@@ -1,0 +1,360 @@
+
+C:\Users\Luke\source\java\Blockchain>echo starting process zero
+starting process zero
+
+C:\Users\Luke\source\java\Blockchain>java Blockchain 0
+[Verified Block for Helen] --
+Current Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for John] --
+Current Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Rita] --
+Current Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+Current Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+
+
+New Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+Current Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+
+
+
+
+Current Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Current Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+Current Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] - 
+Received Ledger Discarded
+New Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+
+
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] - 
+Received Ledger Discarded
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Sally] --
+Current Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+C:\Users\Luke\source\java\Blockchain>echo starting process one
+starting process one
+
+C:\Users\Luke\source\java\Blockchain>java Blockchain 1
+[Verified Block for Helen] --
+Current Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+
+
+Current Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] - 
+Received Ledger Discarded
+
+
+Current Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Abraham] --
+Current Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+
+
+Current Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for John] --
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Sally] --
+Current Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] - 
+Received Ledger Discarded
+
+
+Current Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Julie] --
+Current Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Joe] --
+[Verified Block for Wayne] --
+Current Ledger: [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Bruce] --
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+C:\Users\Luke\source\java\Blockchain>echo starting process two
+starting process two
+
+C:\Users\Luke\source\java\Blockchain>java Blockchain 2
+[Verified Block for Helen] --
+[Verified Block for John] --
+Current Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Rita] --
+Current Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Wei] --
+Current Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] - 
+Received Ledger Discarded
+
+
+[Verified Block for Abraham] --
+Current Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Joe] --
+Current Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for John] --
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] - 
+Received Ledger Discarded
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Sally] --
+Current Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+[Verified Block for Julie] --
+Current Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Set Ledger to received Ledger
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+Current Ledger: [Block #12 (Bruce, Lee)] - [Block #11 (Wayne, Blaine)] - [Block #10 (Joe, DiMaggio)] - [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+New Ledger: [Block #9 (Julie, Wilson)] - [Block #8 (Sally, McCutty)] - [Block #7 (John, Kennedy)] - [Block #6 (Joe, Blow)] - [Block #5 (Abraham, Lincoln)] - [Block #4 (Wei, Xu)] - [Block #3 (Rita, Vita)] - [Block #2 (John, Smith)] - [Block #1 (Helen, Keller)] - [Block #0 (null, null)] -
+Received Ledger Discarded
+
+
+
