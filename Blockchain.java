@@ -6,9 +6,7 @@
 /*
    
     * Move fields from Block to BlockRecord, to prevent malicious changes to data
-    * Implement command line tools for additional utilities
     * Add header to the top of BLockchain.java
-    * Add references to Blockchain.java
     
 */
 
@@ -35,12 +33,34 @@
         * When you receive a Ledger, check timestamp and length against current when deciding whether to update
             * If received chain is longer, or timestamp of receive blockchain's head node is earlier than 
                 timestamp of current blockchain's head node, replace with received chain
+    * Add references to Blockchain.java
+    * Implement command line tools for additional utilities
+
 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////////
+/*
+// References
 
+http://www.javacodex.com/Concurrency/PriorityBlockingQueue-Example
+http://www.fredosaurus.com/notes-java/data/strings/96string_examples/example_stringToArray.html // Reading lines and tokens from a file:
+https://www.w3schools.com/xml/xml_validator.asp  // XML validator
+https://www.mkyong.com/java/jaxb-hello-world-example/  // XML / Object conversion
+https://www.quickprogrammingtips.com/java/how-to-generate-sha256-hash-in-java.html  //  @author JJ
+https://dzone.com/articles/generate-random-alpha-numeric  // by Kunal Bhatia  ·  Aug. 09, 12 · Java Zone
+http://www.java2s.com/Code/Java/Security/SignatureSignAndVerify.htm
+https://www.mkyong.com/java/java-digital-signatures-example/ (not so clear)
+https://javadigest.wordpress.com/2012/08/26/rsa-encryption-example/
+https://www.programcreek.com/java-api-examples/index.php?api=java.security.SecureRandom
+https://www.mkyong.com/java/java-sha-hashing-example/
+https://stackoverflow.com/questions/19818550/java-retrieve-the-actual-value-of-the-public-key-from-the-keypair-object
+
+
+*/
+////////////////////////////////////////////////////////////////////////////////////
 
 /* XML facilities */
 import javax.xml.bind.JAXBContext;
@@ -55,6 +75,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.DatatypeConverter;
 
 import java.security.KeyFactory;
+
 /* Security and cryptography */
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -69,7 +90,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import javax.crypto.Cipher;
 import java.security.spec.X509EncodedKeySpec;
 
-import java.security.MessageDigest; // To produce the SHA-256 hash.
+// To produce the SHA-256 hash
+import java.security.MessageDigest; 
 
 
 /* General facilities */
