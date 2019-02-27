@@ -1,4 +1,30 @@
 
+/*--------------------------------------------------------
+
+1. Luke Robbins / 2/27/2019
+
+2. Java 1.8
+
+3. Compilation Instructions
+
+> javac Blockchain.java
+
+4. Run Instructions
+
+> java Blockchain
+> Enter console commands as desribed by assignment, "quit" to exit
+
+Hit Control-C to end the application
+
+5. List of files needed for running the program.
+
+ a. Blockchain.java
+ b. Text file of records
+
+6. Notes:
+
+----------------------------------------------------------*/
+
 ////////////////////////////////////////////////////////////////////////////////////
 
 // @TODO 
@@ -6,7 +32,6 @@
 /*
    
     * Move fields from Block to BlockRecord, to prevent malicious changes to data
-    * Add header to the top of BLockchain.java
     
 */
 
@@ -35,6 +60,8 @@
                 timestamp of current blockchain's head node, replace with received chain
     * Add references to Blockchain.java
     * Implement command line tools for additional utilities
+    * Add header to the top of BLockchain.java
+
 
 */
 
@@ -120,7 +147,8 @@ class Ledger{
     public Ledger(){
         this.chain = new LinkedList<Block>();
 
-         // Initial "dummy" block
+        // Initial "dummy" block
+        // Doesn't really matter what the actual data or hash are
         Block dummy = new Block();
         dummy.setABlockID("dummy");
         dummy.blockRecord.setBlockNumber("0");
@@ -361,8 +389,6 @@ class BlockMarshaller{
         Signature signer = Signature.getInstance("SHA1withRSA");
 
         // Initializes signing object (signer) with our private key; it says which key to use when signing data
-
-        // Sign the 
         signer.initSign(key);
 
         // Feeds in the data to the signer object
@@ -416,18 +442,18 @@ class BlockMarshaller{
     String stringXML = null;
 
     try{
-        /* The XML conversion tools: */
+        // Initialize Marshaller to use the class type specified
         JAXBContext jaxbContext = JAXBContext.newInstance(BlockRecord.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         StringWriter sw = new StringWriter();
 
-        // CDE Make the output pretty printed:
+        // Format the outpur so it looks like proper XML
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
+        // Actually marshal the specific object into string representation of XML
         jaxbMarshaller.marshal(block.blockRecord, sw);
         stringXML = sw.toString();
-        // System.out.println(stringXML);
+        
     } catch(Exception e){
         e.printStackTrace();
     }
@@ -443,6 +469,7 @@ class BlockMarshaller{
     try{
 
         // If kill signal sent, send indication to receiving thread
+        // @TODO not really used; right now the thread just hangs
         if (block.getABlockID().equals("NO_RECORDS_REMAINING")) return "NO_RECORDS_REMAINING";
         
         // Marshal block to XML
@@ -450,13 +477,13 @@ class BlockMarshaller{
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         StringWriter sw = new StringWriter();
 
-        // CDE Make the output pretty printed:
+        // Format output
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-        /* CDE We marshal the block object into an XML string so it can be sent over the network: */
+        // Marshal to XML
         jaxbMarshaller.marshal(block, sw);
         stringXML = sw.toString();
-        // System.out.println(stringXML);
+        
     } catch(Exception e){
         e.printStackTrace();
     }
@@ -531,15 +558,15 @@ class BlockMarshaller{
   public static String hashData(String data){
 
     try{
-        /* Create the SHA-256 hash of the block: */
+        // Apply hashing algorithm to the data
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update (data.getBytes());
         byte byteData[] = md.digest();
 
-        // Create hex representation of byte data
+        // Create hex representation of byte data - Elliott's method
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < byteData.length; i++) {
-        sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
         }
 
         String SHA256String = sb.toString();
@@ -551,31 +578,28 @@ class BlockMarshaller{
     return null;
   }
 
+  // This method code comes from BlockH.java
   public static String signDataString(String unsignedData){
 
     try{
-        // Sign the hash of the BlockRecord data using the private key generated
+        // Apply this process's private key to the data, so recipients can validate Blocks from this one
         byte[] digitalSignature = signData(unsignedData.getBytes(), Blockchain.keyPair.getPrivate());
         
-        // Verify the signature, using the public key generated
+        // Do a sanity check to make sure this process's public key properly restores data
         boolean verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), digitalSignature);
         //System.out.println("Has the signature been verified: " + verified + "\n");
         
         //System.out.println("Original SHA256 Hash: " + unsignedData + "\n");
 
-        /* Add the SHA256String to the header for the block. We turn the byte[] signature into a string so that it can be placed into
-        the block, but also show how to return the string to a byte[], which you'll need if you want to use it later.*/
-
-        // Get the String representation of the digital signature created from the private key + BlockRecord hash
+        // Convert the digital signature to a String so we can include it in the Block and multicast
         String signedData = Base64.getEncoder().encodeToString(digitalSignature);
         //System.out.println("The signed SHA-256 string: " + signedData + "\n");
 
-        // Re-encode the string digital signature into bytes to test that it can still be used for verification
+        // Do another sanity check, this time to make sure byte[] can be recovered from signature String
         byte[] testSignature = Base64.getDecoder().decode(signedData);
         //System.out.println("Testing restore of signature: " + Arrays.equals(testSignature, digitalSignature));
 
-        // Re-verify the restored signature
-        // Take the un-signed, original hash of the data (SHA256String), decrypt testSignature using the public key, then compare
+        // Using the restored byte array of the signature, double-check to make sure it works with un-signed data
         verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), testSignature);
         //System.out.println("Has the restored signature been verified: " + verified + "\n");
 
@@ -591,6 +615,7 @@ class BlockMarshaller{
 
 // **********************************************************************************
 // Used for port lookups
+// Used Elliott's implementation of static class for easy port setup and lookups
 // **********************************************************************************
 class Ports{
     public static int KeyServerPortBase = 4710;
@@ -613,13 +638,12 @@ class Ports{
 // **********************************************************************************
 
   class PublicKeyServer extends Thread {
-    //public ProcessBlock[] PBlock = new ProcessBlock[3]; // One block to store info for each process.
 
     public PublicKeyServer(){
 
     }
 
-    public static String publicKeyHex(PublicKey pubKey){
+    public static String publicKeyToString(PublicKey pubKey){
 
         try{
             byte[] data = pubKey.getEncoded();
@@ -710,6 +734,7 @@ class NewBlockCreator extends Thread{
     int pnum;
 
     // Indices used for parsing input fields
+    // Use same protocol as Elliott for field order & lookup
     private static final int iFNAME = 0;
     private static final int iLNAME = 1;
     private static final int iDOB = 2;
@@ -768,13 +793,12 @@ class NewBlockCreator extends Thread{
 
         // Fill the Block header //
 
-        /* CDE: Generate a unique blockID. This would also be signed by creating process: */
-        // idA = UUID.randomUUID();
+        // @TODO sign the blockID and include here
+        // Create a unique blockID, include signed and unsigned version
         String suuid = new String(UUID.randomUUID().toString());
         newBlock.setABlockID(suuid);
         newBlock.setACreatingProcess("Process:" + Integer.toString(pnum));
 
-        // @TODO sign the blockID and include here
         // To be set later, once the block is verified
         newBlock.blockRecord.setAVerificationProcessID("-1");
 
@@ -824,7 +848,7 @@ class NewBlockCreator extends Thread{
             BufferedReader br = new BufferedReader(new FileReader(fileName));
             String input;
 
-            // @TODO for now using a fixed number of block records
+            // @TODO don't really use the result...can probably eliminate this list
             ArrayList<Block> blockArrayList = new ArrayList<Block>();
             
 
@@ -841,14 +865,16 @@ class NewBlockCreator extends Thread{
                 marshalAndMulticast(newBlock);
                 
                 // Add tiny delay to prevent duplicate Timestamps
-                try{Thread.sleep(10);}catch(Exception e){e.printStackTrace();}
+                try{Thread.sleep(20);}catch(Exception e){e.printStackTrace();}
             }
 
             // SEND KILL SIGNAL INDICATING NO MORE RECORDS
             Block killBlock = new Block();
             killBlock.setABlockID("NO_RECORDS_REMAINING");
             marshalAndMulticast(killBlock);
-            try{Thread.sleep(1000);}catch(Exception e){e.printStackTrace();}  // Send one more time to break server accept() hang
+            try{Thread.sleep(1000);}catch(Exception e){e.printStackTrace();}  
+
+            // Send one more time to break server accept() hang
             marshalAndMulticast(killBlock);
 
             br.close();
@@ -916,14 +942,11 @@ class UnverifiedBlockProcessor extends Thread{
                     blockString.append("\n");
                 }
 
-                // @TODO un-marshall String into Block structure
-                // Then add block to the priority queue
+                // Un-marshall String into Block structure
                 Block receivedBlock = BlockMarshaller.unmarshalBlock(blockString.toString());
 
                 // Insert the new un-verified block into the priority queue
                 UnverifiedBlockProcessor.this.queue.put(receivedBlock);
-
-                // if (blockString != null) System.out.println("PUSHED UNVERIFIED BLOCK ONTO QUEUE\n");
 
                 sock.close(); 
             } catch (Exception x)
@@ -971,7 +994,7 @@ class BlockVerifier extends Thread{
         this.blocksRemaining = true;
     }
 
-    // Build our random seed string
+    // Build random seed String -- Elliott's method
     public static String randomAlphaNumeric(int count) {
 
         // Just grab random characters to build String of size count, appending them
@@ -996,18 +1019,16 @@ class BlockVerifier extends Thread{
 
                 // Guaranteed to not fit criteria until we recalculate in loop
                 int workNumber = Integer.parseInt("FFFF",16); 
-
-                
                     
-                    // Get hash of most recent block on the chain
-                    String prevBlockHash = Blockchain.LEDGER.prevHash();
+                // Get hash of most recent block on the chain
+                String prevBlockHash = Blockchain.LEDGER.prevHash();
 
                 // Add verifying process ID into block - only do once regardless
                 block.blockRecord.setAVerificationProcessID(Integer.toString(Blockchain.PID));
 
                 while(workNumber > 20000){
 
-                    // Only have to get previous hash and previous block num once, unless chain is updated
+                    // @TODO only have to get previous hash and previous block num once, unless chain is updated
                 
                     // Get sequential blockNum of most recent Block on chain, add 1
                     String prevBlockNum = Blockchain.LEDGER.prevBlockNum();
@@ -1093,7 +1114,7 @@ class BlockVerifier extends Thread{
         
     }
 
-    // boolean verified = verifySig(unsignedData.getBytes(), Blockchain.keyPair.getPublic(), digitalSignature);
+    // Make sure the Block came from the process we think it did
     boolean verifySignature(Block block){
 
         try{
@@ -1325,8 +1346,7 @@ class LedgerProcessor extends Thread{
 public class Blockchain {
 
     static String serverName = "localhost";
-    static String blockchain = "[First block]";
-    static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static int numProcesses = 3; // @TODO Set number based on number given in batch file
     static boolean allProcessesRunning = false;
     static int PID = 0; // Default PID
 
@@ -1387,16 +1407,16 @@ public class Blockchain {
 
         try{
 
+            // Combine Process# and Public Key, separated by a space for parsing on receiving end
             String processID = "Process:" + Blockchain.PID;
-            String publicKeyString = PublicKeyServer.publicKeyHex(keyPair.getPublic());
+            String publicKeyString = PublicKeyServer.publicKeyToString(keyPair.getPublic());
             String processKeyPair = processID + " " + publicKeyString;
 
             for(int i = 0; i < numProcesses; i++){   
                 sock = new Socket(serverName, Ports.KeyServerPortBase + i);
                 toServer = new PrintStream(sock.getOutputStream());
                 
-                // Get hex of public key string data, send it
-                
+                // Get String of public key string data, send it
                 toServer.println(processKeyPair);
 
                 toServer.flush();
@@ -1424,11 +1444,10 @@ public class Blockchain {
         // Listen for incoming public keys
         new PublicKeyServer().start();
 
-        // Sleep for a bit to wait for keys to be received
+        // Sleep for a bit to wait for servers to start up before broadcasting keys
         try{ Thread.sleep(2000); } catch(Exception e){}
 
         // Broadcast public Key
-        // Doesn't matter if it's a duplicate for Process 2 since it won't change the value in the map
         broadcastPublicKey();
 
         // Wait until we get a key from each process
@@ -1436,7 +1455,6 @@ public class Blockchain {
         while(allProcessesRunning == false || publicKeyLookup.size() < numProcesses){
             // wait
         }
-
 
         
         // New thread to process new unverified blocks and insert into priority queue
@@ -1461,6 +1479,7 @@ public class Blockchain {
         new BlockVerifier(queue).start(); 
         
         // Wait until the blockchain is created before accepting input
+        // @TODO come up with condition of blockchain being fully processed
         // try{ Thread.sleep(10000); } catch(Exception e){} 
 
         // Get user input - for console commands
