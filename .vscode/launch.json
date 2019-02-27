@@ -2,15 +2,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "CodeLens (Launch) - UnverifiedBlockCreator",
+            "name": "CodeLens (Launch) - Blockchain",
             "request": "launch",
-            "mainClass": "UnverifiedBlockCreator"
-        },
-        {
-            "type": "java",
-            "name": "CodeLens (Launch) - BlockCreator",
-            "request": "launch",
-            "mainClass": "BlockCreator"
+            "mainClass": "Blockchain",
+            "console": "integratedTerminal"
         }
     ]
 }
