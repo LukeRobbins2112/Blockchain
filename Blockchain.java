@@ -1452,14 +1452,12 @@ public class Blockchain {
         // Create and start BLockchain server to accept Ledger multicasts
         new LedgerProcessor().start();
 
-        // Sleep for a bit to wait for servers to start up before broadcasting keys
-        try{ Thread.sleep(3000); } catch(Exception e){}
-
         // Broadcast public Key
         if (PID < 2){
             
             // Make sure other process's PublicKeyServers are listening
-            try{ Thread.sleep(1000); } catch(Exception e){}
+            // By definition Process 2's server is already listening
+            try{ Thread.sleep(3000); } catch(Exception e){}
 
             broadcastPublicKey();
             while (publicKeyLookup.get("Process:2") == null){
