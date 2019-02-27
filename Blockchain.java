@@ -1456,7 +1456,32 @@ public class Blockchain {
         try{ Thread.sleep(3000); } catch(Exception e){}
 
         // Broadcast public Key
-        broadcastPublicKey();
+        if (PID < 2){
+            broadcastPublicKey();
+            while (publicKeyLookup.get("Process:2") == null){
+                // Wait;
+            }
+        }
+        else{
+            // Process 2 waits for all other processes to start running
+            // Then sends its own signal, which starts everyone
+            while(true){
+                boolean allRunning = true;
+                for (int i = 0; i < (numProcesses - 1); i++){
+                    String procID = "Process:" + Integer.toString(i);
+                    if (publicKeyLookup.get(procID) == null)
+                        allRunning = false;
+                }
+                if (allRunning == true){
+                    break;
+                }
+            }
+            broadcastPublicKey();
+        }
+
+        // Give all processes a chance to receive Process:2 public key
+        try{ Thread.sleep(1000); } catch(Exception e){} 
+        
 
         // Wait until we get a key from each process
         // @TODO allProcessesRunning is kind of superfluous since we need Process2 to satisfy the second condition anyway
@@ -1464,7 +1489,7 @@ public class Blockchain {
             // wait
         }
 
-         // Sleep for a bit to wait for queue to fill
+         // Extra sleep just to make sure
          try{ Thread.sleep(1000); } catch(Exception e){} 
         
         // New thread to start creating blocks
