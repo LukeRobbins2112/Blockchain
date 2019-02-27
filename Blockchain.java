@@ -1457,6 +1457,10 @@ public class Blockchain {
 
         // Broadcast public Key
         if (PID < 2){
+            
+            // Make sure other process's PublicKeyServers are listening
+            try{ Thread.sleep(1000); } catch(Exception e){}
+
             broadcastPublicKey();
             while (publicKeyLookup.get("Process:2") == null){
                 // Wait;
