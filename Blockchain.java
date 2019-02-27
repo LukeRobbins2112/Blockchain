@@ -1441,11 +1441,19 @@ public class Blockchain {
         // Perform port number setup for various Processes
         new Ports().setPorts(); 
 
+        /////// Start all servers, which will hang until they start receiving data - reduce chance of bad connections ///
+
         // Listen for incoming public keys
         new PublicKeyServer().start();
 
+        // New thread to process new unverified blocks and insert into priority queue
+        new UnverifiedBlockProcessor(queue).start();
+
+        // Create and start BLockchain server to accept Ledger multicasts
+        new LedgerProcessor().start();
+
         // Sleep for a bit to wait for servers to start up before broadcasting keys
-        try{ Thread.sleep(2000); } catch(Exception e){}
+        try{ Thread.sleep(3000); } catch(Exception e){}
 
         // Broadcast public Key
         broadcastPublicKey();
@@ -1456,19 +1464,9 @@ public class Blockchain {
             // wait
         }
 
+         // Sleep for a bit to wait for queue to fill
+         try{ Thread.sleep(1000); } catch(Exception e){} 
         
-        // New thread to process new unverified blocks and insert into priority queue
-        new UnverifiedBlockProcessor(queue).start();
-
-        // Sleep for a bit to wait for queue to fill
-        try{ Thread.sleep(1000); } catch(Exception e){} 
-
-        // Create and start BLockchain server to accept Ledger multicasts
-        new LedgerProcessor().start();
-
-        // Sleep for a bit to wait before starting to create blocks
-        try{ Thread.sleep(1000); } catch(Exception e){}
-
         // New thread to start creating blocks
         new NewBlockCreator().start(); 
 
@@ -1477,6 +1475,8 @@ public class Blockchain {
 
         // New thread to validate blocks and add to Ledger
         new BlockVerifier(queue).start(); 
+
+
         
         // Wait until the blockchain is created before accepting input
         // @TODO come up with condition of blockchain being fully processed
