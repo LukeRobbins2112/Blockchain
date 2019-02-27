@@ -650,6 +650,10 @@ class Ports{
             PublicKey receivedKey = pubKeyFromString(tokens[1]);
             Blockchain.publicKeyLookup.put(tokens[0], receivedKey);
 
+            if (tokens[0].equals("Process:2")){
+                Blockchain.allProcessesRunning = true;
+            }
+
             sock.close(); 
           } catch (IOException x){x.printStackTrace();}
         }
@@ -1301,6 +1305,7 @@ public class Blockchain {
     static String serverName = "localhost";
     static String blockchain = "[First block]";
     static int numProcesses = 3; // Set this to match your batch execution file that starts N processes with args 0,1,2,...N
+    static boolean allProcessesRunning = false;
     static int PID = 0; // Default PID
 
     // Create public and private keys for this participant
@@ -1401,12 +1406,16 @@ public class Blockchain {
         try{ Thread.sleep(2000); } catch(Exception e){}
 
         // Broadcast public Key
+        // Doesn't matter if it's a duplicate for Process 2 since it won't change the value in the map
         broadcastPublicKey();
 
         // Wait until we get a key from each process
-        while(publicKeyLookup.size() < numProcesses){
+        // @TODO allProcessesRunning is kind of superfluous since we need Process2 to satisfy the second condition anyway
+        while(allProcessesRunning == false || publicKeyLookup.size() < numProcesses){
             // wait
         }
+
+
         
         // New thread to process new unverified blocks and insert into priority queue
         new UnverifiedBlockProcessor(queue).start();
