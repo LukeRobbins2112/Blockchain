@@ -58,19 +58,19 @@ Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Created ZIP file, sent to D2L</b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Downloaded your D2L submission to verify not corrupt</b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Submitted all files except checklist, and input files concatenated together, to D2L TII link </b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 All files correctly named, in single directory </b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Did you consider simplifying the assignment </b></td><td align="left"><b>
@@ -92,16 +92,16 @@ Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Process 2 startup triggers the running of the whole system </b></td><td align="left"><b>
-Maybe                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Provided clear console log file for your running processes </b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 
 <tr> <td align="left"><b>
 Provided sample XML output of your blockchain in BlockchainLedgerSample.xml </b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 
 <tr> <td align="left"><b>
@@ -119,7 +119,7 @@ Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Correct headers for source files?    </b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 I used JSON in place of XML    </b></td><td align="left"><b>
@@ -254,7 +254,7 @@ Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Blockchain is validated after console command </b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Credit is given to nodes for validating blocks  </b></td><td align="left"><b>
@@ -279,19 +279,19 @@ No                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Same length / same blockID / different timestamp handled </b></td><td align="left"><b>
-No                    </b></td></tr>
+Sort of                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Same length / different blockID handled </b></td><td align="left"><b>
-No                    </b></td></tr>
+Sort of                    </b></td></tr>
 
 <tr> <td align="left"><b>
 You have code to verify an entire blockchain </b></td><td align="left"><b>
-No                    </b></td></tr>
+Yes                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Different length blockchain handled </b></td><td align="left"><b>
-No                    </b></td></tr>
+Maybe                    </b></td></tr>
 
 <tr> <td align="left"><b>
 Did you use args 2-N for extra functionality? </b></td><td align="left"><b>
@@ -356,13 +356,26 @@ Yes                    </b></td></tr>
 </font></p><h3><font face="Cambria" size="3"> Your special comments to me, only if needed: </font></h3><font face="Cambria" size="3">
 
 <p>
+    *** I had some trouble with process coordination; if it hangs please try to run it 1-2 times again <br>
+    *** There are a couple of sleeps so it takes a couple seconds to start up <br>
+
+    <br>
+
+    (Sort of / Maybe) Blockchain resolution: when blockchains come in, I check their lengths. If the incoming one is longer, I choose that; <br>
+    If the new one is shorter, I discard it. If they are the same length, I take the one whose head node has the earlier timestamp <br>
 
     (Maybe) Nodes compete to verify blocks: The Blockchain ledger is checked after each loop when verifying blocks, and if 
     the Block is present, the current one is discarded. So they compete in that sense <br>
 
     (Maybe) Process 2 does not trigger startup; instead, once you receive numProcesses number of public keys, you start <br>
 
-    (Maybe) Real work is implemented just using the given references files as a guide. Uses sleep for realistic timing <br>
+    (Maybe) Real work is implemented just using the given references files as a guide (compares 16 bits). Uses sleep for realistic timing <br>
+
+    <br>
+
+    For the console, there are 3 commands: C, V, and L, which correspond to the commands in the assignment. <br>
+    I did not implement the function to read a specific file name. There is no prompt, but once all the records have been listed <br>
+    in the output, you can enter any of those 3 commands (C for Credit, V for Blockchain verification, L for listing records)
 
 
 </p></font></font></font></body></html>
