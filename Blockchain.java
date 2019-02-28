@@ -229,6 +229,81 @@ class Ledger{
         return output.toString();
     }
 
+    boolean validateSignature(Block b){
+
+        boolean verifiedSig = false;
+            try{
+                byte[] hashBytes = b.SHA256String.getBytes();
+                byte[] signatureBytes = Base64.getDecoder().decode(b.SignedSHA256);
+                PublicKey key = Blockchain.publicKeyLookup.get(b.getACreatingProcess());
+        
+                verifiedSig = BlockMarshaller.verifySig(hashBytes, key, signatureBytes);
+            } catch (Exception e){
+                String s = e.toString();
+                return false;
+            }
+
+        return verifiedSig;
+    }
+
+    boolean validateWork(Block block){
+
+        boolean result = false;
+
+        try{
+
+             // Hash the block
+             String blockData = BlockMarshaller.marshalBlockRecord(block);
+
+             // Combine prev block's hash with block data, and hash that combination
+             String testData = block.getAPreviousHash() + blockData;
+             String testHash = BlockMarshaller.hashData(testData);
+             
+             // Get the leftmost 4 hex values (leftmost 16 bits) and interpret that value
+             int workNumber = Integer.parseInt(testHash.substring(0,4),16); 
+
+             // If the result meets the critera, we are free to add it to the beginning of the blockchain
+             if (workNumber < 20000){
+                result = true;
+             }
+             else{
+                result = false;
+             }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public String listVerification(){
+
+        StringBuilder output = new StringBuilder();
+
+        for (Block b : this.chain){
+
+            boolean verifiedSig = validateSignature(b);
+            boolean verifiedWork = validateWork(b);
+
+            if (verifiedSig && verifiedWork){
+                output.append("Verified Block " + b.getBlockRecord().getBlockNumber() + "\n");
+            }
+            else{
+                if (verifiedSig == false){
+                    output.append("Block " + b.getABlockID() + "signature verification failure || ");
+                }
+                if (verifiedWork == false){
+                    output.append("Block " + b.getABlockID() + "work verification failure");
+                }
+                output.append("\n");
+            }
+            
+        }
+
+        return output.toString();
+    }
+
 }
 
 @XmlRootElement
@@ -406,6 +481,7 @@ class BlockMarshaller{
         Signature signer = Signature.getInstance("SHA1withRSA");
 
         // Just passes the public key to the signature object; signer will use key to decrypt any signed messages
+        if (key == null) return false;
         signer.initVerify(key);
 
         // Passes the signed data to the signer object, but does not yet apply the public key
@@ -1025,6 +1101,7 @@ class BlockVerifier extends Thread{
                     
                 // Get hash of most recent block on the chain
                 String prevBlockHash = Blockchain.LEDGER.prevHash();
+                block.setAPreviousHash(prevBlockHash);
 
                 // Add verifying process ID into block - only do once regardless
                 block.blockRecord.setAVerificationProcessID(Integer.toString(Blockchain.PID));
@@ -1087,8 +1164,8 @@ class BlockVerifier extends Thread{
                         block.blockRecord.setBlockNumber(newBlockNum);
                         
                         // Recalculate hash based on updated chain
-                        // Don't have to "set" since it's not part of block data
                         prevBlockHash = Blockchain.LEDGER.prevHash();
+                        block.setAPreviousHash(prevBlockHash);
                     }
 
                     // Sleep to give the impression of harder work
@@ -1386,6 +1463,7 @@ public class Blockchain {
                     case 'R':
                         break;
                     case 'V':
+                        System.out.println(Blockchain.LEDGER.listVerification());
                         break;
                     case 'L':
                         System.out.println(Blockchain.LEDGER.recordList());
