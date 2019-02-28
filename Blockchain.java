@@ -1446,6 +1446,10 @@ public class Blockchain {
         // Listen for incoming public keys
         new PublicKeyServer().start();
 
+        // Make sure other process's PublicKeyServers are listening
+        // By definition Process 2's server is already listening
+        try{ Thread.sleep(2000); } catch(Exception e){}
+
         // New thread to process new unverified blocks and insert into priority queue
         new UnverifiedBlockProcessor(queue).start();
 
@@ -1454,10 +1458,6 @@ public class Blockchain {
 
         // Broadcast public Key
         if (PID < 2){
-            
-            // Make sure other process's PublicKeyServers are listening
-            // By definition Process 2's server is already listening
-            try{ Thread.sleep(3000); } catch(Exception e){}
 
             broadcastPublicKey();
             while (publicKeyLookup.get("Process:2") == null){
