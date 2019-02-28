@@ -1,4 +1,11 @@
 
+* Here is the output from Processes 0, 1, and 2, respectively
+* It outputs every time a block is Verified
+* It also outputs every time the process receives a Blockchain 
+      * Whether the new blockchain is assumed or discarded is also noted
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+
 C:\Users\Luke\source\java\Blockchain>echo starting process zero
 starting process zero
 
