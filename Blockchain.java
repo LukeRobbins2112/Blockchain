@@ -696,6 +696,9 @@ class Ports{
             PublicKey receivedKey = pubKeyFromString(tokens[1]);
             Blockchain.publicKeyLookup.put(tokens[0], receivedKey);
 
+            System.out.println("Received public key from " + tokens[0]);
+            // System.out.println("Size of lookup is " + Integer.toString(Blockchain.publicKeyLookup.size()));
+
             if (tokens[0].equals("Process:2")){
                 Blockchain.allProcessesRunning = true;
             }
@@ -1423,6 +1426,8 @@ public class Blockchain {
                 sock.close();
             } 
 
+            System.out.println("Sent Public Key for Process" + Integer.toString(Blockchain.PID));
+
             Thread.sleep(1000);  // Give processes time to set up Keys
         }catch (Exception x) {
             x.printStackTrace ();
@@ -1433,7 +1438,7 @@ public class Blockchain {
     public static void main(String[] args) throws Exception {
 
         // Assign Process ID
-        PID = (args.length < 1) ? 0 : Integer.parseInt(args[0]);
+        PID = (args.length < 1) ? 2 : Integer.parseInt(args[0]);
 
         // Create thread-safe priority queue for processing unverified blocks -- Priority goes by Block timestamp
         final BlockingQueue<Block> queue = new PriorityBlockingQueue<Block>(5, new BlockComparator()); 
@@ -1459,25 +1464,19 @@ public class Blockchain {
         // Broadcast public Key
         if (PID < 2){
 
+            // Gather all other keys, then kick it off with Process 2's key
             broadcastPublicKey();
-            while (publicKeyLookup.get("Process:2") == null){
-                // Wait;
-            }
         }
         else{
             // Process 2 waits for all other processes to start running
             // Then sends its own signal, which starts everyone
-            while(true){
-                boolean allRunning = true;
-                for (int i = 0; i < (numProcesses - 1); i++){
-                    String procID = "Process:" + Integer.toString(i);
-                    if (publicKeyLookup.get(procID) == null)
-                        allRunning = false;
-                }
-                if (allRunning == true){
-                    break;
-                }
+            while(publicKeyLookup.size() < 2){
+               // wait
+               try{ Thread.sleep(10); } catch(Exception e){}
+               // System.out.println("Map size: " + Integer.toString(publicKeyLookup.size()));
             }
+            // System.out.println("Exited loop");
+            try{ Thread.sleep(1000); } catch(Exception e){}
             broadcastPublicKey();
         }
 
@@ -1487,8 +1486,9 @@ public class Blockchain {
 
         // Wait until we get a key from each process
         // @TODO allProcessesRunning is kind of superfluous since we need Process2 to satisfy the second condition anyway
-        while(allProcessesRunning == false || publicKeyLookup.size() < numProcesses){
+        while(/*allProcessesRunning == false ||*/ publicKeyLookup.size() < numProcesses){
             // wait
+            //System.out.println("Stuck");
         }
 
          // Extra sleep just to make sure
